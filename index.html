@@ -895,6 +895,9 @@ function debounceResize(){
   },120);
 }
 
+let mouseX=0, mouseY=0;
+document.addEventListener('mousemove', e=>{ mouseX=e.clientX; mouseY=e.clientY; });
+
 async function main(){
   try{
     setStatus('Cargando geo…','loading'); setProgress(.1);
@@ -923,9 +926,9 @@ async function main(){
       .polygonAltitude(altitude)
       .polygonStrokeColor(()=>'rgba(10,20,40,.8)')
       .onPolygonClick(onPickCountry)
-      .onPolygonHover((d,prev,{x,y})=>{
+      .onPolygonHover((d)=>{
         document.body.style.cursor=d?'pointer':'grab';
-        if(d) showTooltip(d,x,y); else hideTooltip();
+        if(d) showTooltip(d, mouseX, mouseY); else hideTooltip();
       });
 
     globe.renderer().setPixelRatio(Math.min(window.devicePixelRatio||1,2));
