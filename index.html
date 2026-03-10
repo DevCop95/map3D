@@ -1,191 +1,318 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Map 3D</title>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <title>Map 3D · Explorador de Países</title>
   <link rel="icon" type="image/png" sizes="64x64" href="assets/img/plogo.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/globe.gl"></script>
-
   <style>
+    /* ── TOKENS ── */
     :root{
-      --bg:#0b1320; --panel:#0f1a30; --text:#e6eefc; --muted:#a9b7d0;
-      --accent:#4cc9f0; --selected:#80ffdb; --equiv:#ffd166; --border:#21324f;
-      --vh: 1vh;
-      --safe-top: env(safe-area-inset-top, 0px);
-      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --bg:      #060d1a;
+      --bg2:     #0a1628;
+      --panel:   #0d1e35;
+      --panel2:  #0f2240;
+      --border:  #1a3050;
+      --border2: #22406a;
+      --text:    #dde8f8;
+      --text2:   #8ba4c4;
+      --text3:   #4d6a8a;
+      --accent:  #38bdf8;
+      --accent2: #0ea5e9;
+      --green:   #34d399;
+      --yellow:  #fbbf24;
+      --orange:  #fb923c;
+      --red:     #f87171;
+      --sel:     #34d399;
+      --equiv:   #fbbf24;
+      --vh:      1vh;
+      --safe-top:    env(safe-area-inset-top,0px);
+      --safe-bottom: env(safe-area-inset-bottom,0px);
     }
-    *{box-sizing:border-box}
+    *{box-sizing:border-box;margin:0;padding:0;}
     html,body{
       height:100%;
-      margin:0;
       background:var(--bg);
       color:var(--text);
-      font-family:system-ui, Segoe UI, Roboto, Inter, Arial;
-      -webkit-tap-highlight-color: transparent;
+      font-family:'Space Grotesk',system-ui,sans-serif;
+      -webkit-tap-highlight-color:transparent;
+      overflow:hidden;
     }
+
+    /* ── LAYOUT ── */
     #app{
       display:grid;
-      grid-template-columns:340px 1fr;
+      grid-template-columns:320px 1fr;
       grid-template-rows:auto 1fr;
-      gap:10px;
-      height:calc(var(--vh) * 100);
-      padding:10px;
-      padding-top: calc(10px + var(--safe-top));
-      padding-bottom: calc(10px + var(--safe-bottom));
+      gap:8px;
+      height:calc(var(--vh)*100);
+      padding:8px;
+      padding-top:calc(8px + var(--safe-top));
+      padding-bottom:calc(8px + var(--safe-bottom));
     }
+
+    /* ── HEADER ── */
     header{
       grid-column:1/3;
-      background:linear-gradient(90deg, rgba(76,201,240,.12), rgba(100,223,223,.04));
+      background:linear-gradient(135deg,rgba(56,189,248,.07),rgba(14,165,233,.02));
       border:1px solid var(--border);
-      border-radius:14px;
-      padding:10px 14px;
-      display:flex; align-items:center; justify-content:space-between;
-      gap:12px;
+      border-radius:12px;
+      padding:8px 14px;
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
     }
-    header h1{margin:0;font-size:18px;font-weight:700}
-    .pill,button,select{
-      background:var(--panel); color:var(--text); border:1px solid var(--border);
-      padding:10px 12px; border-radius:10px; font-weight:600; cursor:pointer;
-    }
-    button:hover, select:hover{border-color:var(--accent); box-shadow:0 0 0 3px rgba(76,201,240,.12)}
-    #statusPill{font-size:13px; opacity:.9}
+    .hlogo{display:flex;align-items:center;gap:10px;}
+    .hlogo-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;}
+    header h1{font-size:16px;font-weight:700;letter-spacing:-.3px;white-space:nowrap;}
+    header h1 span{color:var(--accent);}
 
+    .hcontrols{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+
+    /* ── BUTTONS ── */
+    .btn{
+      background:var(--panel2);color:var(--text);
+      border:1px solid var(--border);
+      padding:7px 13px;border-radius:8px;
+      font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;
+      cursor:pointer;transition:all .15s;white-space:nowrap;
+    }
+    .btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(56,189,248,.06);}
+    .btn.active{border-color:var(--accent);background:rgba(56,189,248,.12);color:var(--accent);}
+    select.btn{appearance:none;padding-right:28px;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238ba4c4' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat:no-repeat;background-position:right 8px center;
+    }
+
+    .mode-toggle{display:flex;gap:4px;background:rgba(0,0,0,.2);padding:4px;border:1px solid var(--border);border-radius:10px;}
+    .mode-toggle .btn{padding:6px 12px;}
+
+    #statusPill{
+      font-family:'JetBrains Mono',monospace;font-size:11px;
+      color:var(--text2);background:rgba(0,0,0,.3);
+      border:1px solid var(--border);border-radius:6px;
+      padding:5px 10px;white-space:nowrap;min-width:80px;text-align:center;
+    }
+    #statusPill.loading{color:var(--yellow);border-color:rgba(251,191,36,.3);}
+    #statusPill.ok{color:var(--green);border-color:rgba(52,211,153,.3);}
+    #statusPill.err{color:var(--red);border-color:rgba(248,113,113,.3);}
+
+    /* ── SIDEBAR ── */
     #sidebar{
-      grid-row:2; grid-column:1;
-      background:var(--panel); border:1px solid var(--border); border-radius:14px;
-      padding:14px; display:flex; flex-direction:column; gap:10px; min-height:0;
+      grid-row:2;grid-column:1;
+      background:var(--panel);border:1px solid var(--border);border-radius:12px;
+      display:flex;flex-direction:column;gap:0;min-height:0;overflow:hidden;
     }
-    #info{background:rgba(255,255,255,.03); border:1px dashed var(--border); border-radius:12px; padding:10px}
-    .stat{display:grid; grid-template-columns:1fr auto; gap:6px; font-size:14px}
-    .stat .val{font-weight:700; color:var(--accent)}
-    #legend{display:flex; gap:8px; flex-wrap:wrap}
-    .legend-item{display:inline-flex; align-items:center; gap:8px; padding:6px 8px; border:1px solid var(--border); border-radius:10px; background:rgba(255,255,255,.03); font-size:13px}
-    .sw{width:14px; height:14px; border-radius:3px; border:1px solid #0003}
-    .sw.sel{background:var(--selected)} .sw.eq{background:var(--equiv)} .sw.base{background:#6b7280}
 
-    .row{display:flex; gap:8px; align-items:center; flex-wrap:wrap; font-size: 15px;}
-    .metric-group{
-      display: none !important;
+    /* INFO BOX */
+    #info{
+      padding:12px 14px;border-bottom:1px solid var(--border);
+      background:linear-gradient(135deg,rgba(56,189,248,.04),transparent);
     }
-    /* Lista principal */
+    .info-country{
+      display:flex;align-items:center;gap:8px;margin-bottom:10px;
+    }
+    .info-flag{font-size:22px;line-height:1;flex-shrink:0;}
+    .info-name{font-size:16px;font-weight:700;color:var(--text);letter-spacing:-.3px;}
+    .info-iso{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text3);background:var(--bg2);border:1px solid var(--border);padding:1px 6px;border-radius:4px;}
+    .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+    .stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;}
+    .stat-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;font-family:'JetBrains Mono',monospace;margin-bottom:3px;}
+    .stat-val{font-size:13px;font-weight:700;color:var(--accent);font-family:'JetBrains Mono',monospace;}
+    .stat-val.green{color:var(--green);}
+    .stat-val.yellow{color:var(--yellow);}
+
+    /* LEGEND */
+    #legend{
+      display:flex;gap:6px;padding:8px 14px;border-bottom:1px solid var(--border);
+      flex-wrap:wrap;
+    }
+    .legend-item{
+      display:inline-flex;align-items:center;gap:6px;
+      padding:4px 8px;border:1px solid var(--border);border-radius:6px;
+      background:rgba(255,255,255,.02);font-size:11px;color:var(--text2);
+    }
+    .sw{width:10px;height:10px;border-radius:2px;}
+    .sw.sel{background:var(--sel);}
+    .sw.eq{background:var(--equiv);}
+    .sw.base{background:var(--text3);}
+
+    /* SEARCH */
+    .search-wrap{padding:8px 14px;border-bottom:1px solid var(--border);}
+    #searchInput{
+      width:100%;background:var(--bg2);border:1px solid var(--border);
+      border-radius:8px;padding:7px 10px 7px 32px;
+      color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:13px;
+      outline:none;transition:border-color .15s;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%234d6a8a' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");
+      background-repeat:no-repeat;background-position:10px center;
+    }
+    #searchInput:focus{border-color:var(--border2);}
+    #searchInput::placeholder{color:var(--text3);}
+
+    /* COUNTRIES LIST */
     #countriesList{
-      overflow:auto; flex:1;
-      border:1px solid var(--border); border-radius:12px; padding:8px;
-      -webkit-overflow-scrolling: touch;
-      scroll-behavior: smooth;
+      overflow:auto;flex:1;padding:6px;
+      -webkit-overflow-scrolling:touch;scroll-behavior:smooth;
     }
-    #countriesList .section{padding:6px 10px; font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.4px;}
-    #countriesList .item{display:flex; justify-content:space-between; gap:8px; padding:8px 10px; border-bottom:1px dashed var(--border); font-size:14px; color:var(--muted)}
-    #countriesList .item strong{color:var(--text)}
-    #countriesList .tag{font-size:12px; opacity:.8}
+    #countriesList::-webkit-scrollbar{width:3px;}
+    #countriesList::-webkit-scrollbar-track{background:transparent;}
+    #countriesList::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px;}
 
-    /* Contenedor globo */
+    .list-section{
+      padding:6px 8px 4px;
+      font-family:'JetBrains Mono',monospace;font-size:10px;
+      color:var(--text3);text-transform:uppercase;letter-spacing:.8px;
+      display:flex;align-items:center;gap:8px;
+    }
+    .list-section::after{content:'';flex:1;height:1px;background:var(--border);}
+
+    .list-item{
+      display:flex;justify-content:space-between;align-items:center;gap:6px;
+      padding:7px 10px;border-radius:8px;
+      font-size:13px;color:var(--text2);
+      transition:background .12s;cursor:default;
+    }
+    .list-item:hover{background:rgba(56,189,248,.05);}
+    .list-item strong{color:var(--text);font-weight:600;}
+    .list-item .tag{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text2);}
+    .right-pack{display:inline-flex;gap:6px;align-items:center;flex-shrink:0;}
+
+    /* SCORE BADGES */
+    .badge{
+      padding:2px 7px;border-radius:999px;
+      font-family:'JetBrains Mono',monospace;font-weight:600;font-size:11px;
+      display:inline-block;line-height:1.3;
+    }
+    .badge-green{ color:var(--green);background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.2);}
+    .badge-orange{color:var(--orange);background:rgba(251,146,60,.1);border:1px solid rgba(251,146,60,.2);}
+    .badge-red{   color:var(--red);   background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.2);}
+
+    /* COUNTRY LINK */
+    .country-link{color:var(--accent);text-decoration:none;font-weight:600;transition:opacity .15s;}
+    .country-link:hover{opacity:.75;text-decoration:underline;}
+
+    /* EMPTY STATE */
+    .empty-state{
+      text-align:center;padding:40px 20px;
+      color:var(--text3);font-size:13px;line-height:1.8;
+    }
+    .empty-icon{font-size:32px;margin-bottom:10px;}
+
+    /* LOADING SKELETON */
+    .skeleton{
+      height:36px;background:linear-gradient(90deg,var(--border) 25%,var(--border2) 50%,var(--border) 75%);
+      background-size:200% 100%;animation:shimmer 1.5s infinite;
+      border-radius:8px;margin-bottom:6px;
+    }
+    @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+    /* PROGRESS BAR */
+    #progressBar{
+      position:absolute;bottom:0;left:0;right:0;height:2px;
+      background:linear-gradient(90deg,var(--accent),var(--green));
+      transform-origin:left;transform:scaleX(0);
+      transition:transform .4s ease;border-radius:0 0 12px 12px;
+    }
+
+    /* GLOBE */
     #globeWrap{
-      grid-row:2; grid-column:2;
-      border:1px solid var(--border); border-radius:14px; position:relative; min-height:0; background:#000;
-      touch-action: pan-y;
+      grid-row:2;grid-column:2;
+      border:1px solid var(--border);border-radius:12px;
+      position:relative;min-height:0;background:var(--bg);
+      overflow:hidden;
     }
-    #globe{position:absolute; inset:0}
+    #globe{position:absolute;inset:0;}
 
-    /* Toggle de modo */
-    .mode-toggle{display:flex; gap:6px; background:rgba(255,255,255,.03); padding:6px; border:1px solid var(--border); border-radius:10px;}
-    .mode-toggle button{flex:1}
-    .active{border-color:var(--accent); box-shadow:0 0 0 3px rgba(76,201,240,.12)}
+    /* TOOLTIP */
+    #tooltip{
+      position:fixed;z-index:1000;pointer-events:none;
+      background:rgba(6,13,26,.92);border:1px solid var(--border2);
+      border-radius:8px;padding:6px 10px;
+      font-size:12px;color:var(--text);
+      backdrop-filter:blur(8px);
+      opacity:0;transition:opacity .12s;
+      display:flex;align-items:center;gap:6px;
+      box-shadow:0 4px 16px rgba(0,0,0,.4);
+    }
+    #tooltip.show{opacity:1;}
+    #tooltip .t-flag{font-size:16px;}
+    #tooltip .t-name{font-weight:600;}
+    #tooltip .t-val{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);}
 
-    .hint{color:var(--muted); font-size:12px; margin-top:-4px}
-@media (max-width: 980px){
-  #app{ 
-    grid-template-columns:1fr; 
-    grid-template-rows:auto calc(var(--vh) * 48) 1fr; 
-  }
-  #sidebar{
-    grid-row:3; 
-    grid-column:1; 
-    padding:12px;
-  }
-  #statusPill{ 
-    display: none !important;
-  }
-  #globeWrap{
-    grid-row:2; 
-    grid-column:1;
-  }
-  .stat{font-size:15px}
-  .legend-item{font-size:12px; padding:6px 10px}
-  .pill, button, select{padding:12px 16px}
-  #countriesList{min-height:0}
-  #btnDownload{ display:none !important; }
+    /* METRIC SELECTOR (now visible) */
+    .metric-wrap{display:flex;align-items:center;gap:6px;}
+    .metric-label{font-size:11px;color:var(--text2);font-family:'JetBrains Mono',monospace;white-space:nowrap;}
 
-  /* 🔽 fix header en móvil */
-  header .row{
-    flex-wrap: wrap;              /* permite varias filas sin huecos */
-    justify-content: flex-start;  /* no deja espacio innecesario */
-    gap: 8px;
-    width: 100%;
-  }
-  #metricSelect{
-    margin-left: auto;            /* lo empuja a la derecha */
-    align-self: flex-end;         /* se alinea abajo de su fila */
-  }
-}
-.score-badge{
-  padding: 2px 8px;
-  border-radius: 999px;
-  font-weight: 700;
-  font-size: 12px;
-  display: inline-block;
-  line-height: 1.2;
-}
-.item .score-green{  color:#22c55e !important; background:rgba(34,197,94,.12); }
-.item .score-orange{ color:#ff9800 !important; background:rgba(255,152,0,.12); }
-.item .score-red{    color:#f44336 !important; background:rgba(244,67,54,.12); }
-.item .right-pack{ display:inline-flex; gap:8px; align-items:center; }
+    /* RESPONSIVE */
+    @media(max-width:980px){
+      #app{
+        grid-template-columns:1fr;
+        grid-template-rows:auto calc(var(--vh)*46) 1fr;
+      }
+      #sidebar{grid-row:3;grid-column:1;}
+      #globeWrap{grid-row:2;grid-column:1;}
+      #statusPill,#btnDownload{display:none!important;}
+      header .hcontrols{flex-wrap:wrap;}
+    }
+    @media(max-width:520px){
+      .metric-wrap{display:none;}
+      .mode-toggle .btn{padding:6px 10px;font-size:12px;}
+    }
 
-.country-link {
-  color: var(--text);         /* usa el color de texto principal (blanco) */
-  text-decoration: none;      /* sin subrayado */
-  font-weight: 600;           /* un poco más marcado */
-  cursor: pointer;
-}
-
-.country-link:hover {
-  color: var(--accent);       /* al pasar el mouse, que tome tu color de acento */
-  text-decoration: underline; /* opcional: solo subraya al pasar */
-}
-    
+    /* ANIMATIONS */
+    .list-item{animation:fadeUp .2s ease both;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
   </style>
 </head>
 <body>
 <div id="app">
   <header>
-    <h1>Map 3D</h1>
-    <div class="row" style="align-items:center; gap:10px">
-      <div class="mode-toggle" title="Modo de cálculo">
-        <button id="btnModeEq" class="active">Equivalencias</button>
-        <button id="btnModeNearest">Parecidos</button>
+    <div class="hlogo">
+      <div class="hlogo-icon">🌍</div>
+      <h1>Map <span>3D</span></h1>
+    </div>
+    <div class="hcontrols">
+      <div class="mode-toggle">
+        <button class="btn active" id="btnModeEq">Equivalencias</button>
+        <button class="btn" id="btnModeNearest">Parecidos</button>
       </div>
-      <div class="metric-group">
-        <label for="metricSelect" class="pill" style="background:transparent;border:none;padding:0;font-weight:700">Métrica:</label>
-        <select id="metricSelect" title="Elegir métrica para equivalencias o comparación">
+      <div class="metric-wrap">
+        <span class="metric-label">Métrica:</span>
+        <select id="metricSelect" class="btn">
           <option value="pop" selected>Población</option>
           <option value="gdp">PIB (USD)</option>
-          <option value="gdp_pc">PIB per cápita (USD)</option>
+          <option value="gdp_pc">PIB per cápita</option>
         </select>
       </div>
-
-
-      <button id="btnDownload">Descargar JSON</button>
-      <span id="statusPill" class="pill">Listo</span>
+      <button class="btn" id="btnDownload">↓ JSON</button>
+      <span id="statusPill" class="loading">Cargando…</span>
     </div>
   </header>
 
   <aside id="sidebar">
     <div id="info">
-      <div class="stat"><span>País seleccionado</span><span class="val" id="selName">—</span></div>
-      <div class="stat"><span id="labelTarget">Objetivo (Población)</span><span class="val" id="selVal">—</span></div>
-      <div class="stat"><span id="labelSum">Suma equivalente</span><span class="val" id="sumVal">—</span></div>
-      <div class="stat"><span id="labelDiff">Diferencia</span><span class="val" id="diffVal">—</span></div>
+      <div class="info-country">
+        <span class="info-flag" id="infoFlag">🌐</span>
+        <span class="info-name" id="selName">Selecciona un país</span>
+        <span class="info-iso" id="selISO" style="display:none"></span>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label" id="labelTarget">Objetivo</div>
+          <div class="stat-val" id="selVal">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label" id="labelSum">Suma equiv.</div>
+          <div class="stat-val green" id="sumVal">—</div>
+        </div>
+        <div class="stat-card" style="grid-column:1/-1;">
+          <div class="stat-label" id="labelDiff">Diferencia</div>
+          <div class="stat-val yellow" id="diffVal">—</div>
+        </div>
+      </div>
+      <div id="progressBar"></div>
     </div>
 
     <div id="legend">
@@ -194,540 +321,651 @@
       <div class="legend-item"><span class="sw base"></span>Otros</div>
     </div>
 
-    <div id="countriesList"></div>
+    <div class="search-wrap">
+      <input id="searchInput" type="search" placeholder="Buscar en resultados…" autocomplete="off">
+    </div>
+
+    <div id="countriesList">
+      <div class="empty-state">
+        <div class="empty-icon">👆</div>
+        Haz clic en cualquier país<br>del globo para comenzar
+      </div>
+    </div>
   </aside>
 
-  <div id="globeWrap"><div id="globe"></div></div>
+  <div id="globeWrap">
+    <div id="globe"></div>
+  </div>
+</div>
+
+<div id="tooltip">
+  <span class="t-flag" id="ttFlag"></span>
+  <div>
+    <div class="t-name" id="ttName"></div>
+    <div class="t-val" id="ttVal"></div>
+  </div>
 </div>
 
 <script>
-  function scoreClass(score){
-  if (!isFinite(score)) return 'score-red';
-  if (score < 0.15) return 'score-green';
-  if (score < 0.5)  return 'score-orange';
-  return 'score-red';
+/* =====================================================================
+   CONSTANTS & CONFIG
+===================================================================== */
+const CACHE_POP_KEY   = 'map3d_pop_v2';
+const CACHE_ECON_KEY  = 'map3d_econ_v2';
+const CACHE_TTL_MS    = 7 * 24 * 60 * 60 * 1000; // 7 days
+
+const WB_GDP_IND   = 'NY.GDP.MKTP.CD';
+const WB_GDPPC_IND = 'NY.GDP.PCAP.CD';
+const TRIES        = 400;
+const TOLERANCE    = 0.025;
+
+const WEIGHTS = { pop:.5, gdp:.3, gdp_pc:.2 };
+
+const SCORE_THRESHOLDS = { green:.15, orange:.5 };
+
+/* =====================================================================
+   UTIL
+===================================================================== */
+const $   = id => document.getElementById(id);
+const fmt = new Intl.NumberFormat('es-CO');
+const fmtUSD = new Intl.NumberFormat('es-CO',{style:'currency',currency:'USD',maximumFractionDigits:0});
+
+function formatVal(metric, v){
+  if (v==null||!isFinite(v)) return '—';
+  return metric==='pop' ? fmt.format(v) : fmtUSD.format(v);
+}
+function getVal(c, metric){
+  return metric==='gdp' ? (c.gdp??null) : metric==='gdp_pc' ? (c.gdp_pc??null) : (c.pop??null);
+}
+function metricLabel(m){
+  return m==='gdp'?'PIB (USD)':m==='gdp_pc'?'PIB per cápita':'Población';
+}
+function badgeClass(score){
+  if(!isFinite(score)) return 'badge-red';
+  if(score<SCORE_THRESHOLDS.green) return 'badge-green';
+  if(score<SCORE_THRESHOLDS.orange) return 'badge-orange';
+  return 'badge-red';
+}
+function setStatus(msg, type=''){
+  const el=$('statusPill'); el.textContent=msg;
+  el.className = type ? type : '';
+}
+function setProgress(ratio){
+  $('progressBar').style.transform=`scaleX(${Math.min(ratio,1)})`;
 }
 
-  /* ========= UTIL ========= */
-  const fmtPop = new Intl.NumberFormat('es-CO'); // población
-  const fmtUSD  = new Intl.NumberFormat('es-CO', { style:'currency', currency:'USD', maximumFractionDigits:0 });
-  const $ = id => document.getElementById(id);
-  const setStatus = (msg) => { const el = $('statusPill'); if (el) el.textContent = msg; };
+// VH for mobile
+function setVH(){
+  const h = window.visualViewport?.height ?? window.innerHeight;
+  document.documentElement.style.setProperty('--vh',`${h/100}px`);
+}
+setVH();
+window.addEventListener('resize', setVH);
+window.addEventListener('orientationchange', setVH);
 
-  function setVHVar(){
-    const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-    document.documentElement.style.setProperty('--vh', `${vh/100}px`);
+// ISO3 → flag emoji (approximate via cca2 from restcountries)
+const isoFlags = new Map(); // populated from API data
+
+// Cache helpers
+function cacheGet(key){
+  try{
+    const raw=localStorage.getItem(key);
+    if(!raw) return null;
+    const {ts,data}=JSON.parse(raw);
+    if(Date.now()-ts > CACHE_TTL_MS){ localStorage.removeItem(key); return null; }
+    return data;
+  }catch{ return null; }
+}
+function cacheSet(key,data){
+  try{ localStorage.setItem(key,JSON.stringify({ts:Date.now(),data})); }catch{}
+}
+
+/* =====================================================================
+   STATE
+===================================================================== */
+let globe, features=[], allCountries=[];
+let countryByIso = new Map();   // O(1) lookup
+let featureByIso = new Map();   // O(1) lookup
+let centroidCache = new Map();  // memoized centroids
+
+let selectedISO3 = null;
+const equivalentsISO3 = new Set();
+let nearestISO3 = null;
+let mode = 'equiv';
+
+/* =====================================================================
+   DATA LOADING
+===================================================================== */
+async function loadGeo(){
+  const url='https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson';
+  const geo=await fetch(url,{mode:'cors'}).then(r=>r.json());
+  for(const f of geo.features){
+    const p=f.properties||{};
+    p.name = p.name||p.ADMIN||p.NAME||p.name_long||p.sovereignt||'País';
+    p.iso3 = String(p.ISO_A3||p.ADM0_A3||p.iso_a3||f.id||'').toUpperCase().replace(/[^A-Z]/g,'');
   }
-  setVHVar();
-  window.addEventListener('resize', setVHVar);
-  window.addEventListener('orientationchange', setVHVar);
+  return geo.features;
+}
 
-  // Estado
-  let globe, features = [], allCountries = []; // {iso3, name, pop, gdp, gdp_pc}
-  let selectedISO3 = null;
-  const equivalentsISO3 = new Set();
-  const metricSelect = $('metricSelect');
-
-  // Nuevo estado de modo y nearest
-  let mode = 'equiv'; // 'equiv' | 'nearest'
-  let nearestCombinedISO3 = null; // resaltado dorado en modo 'nearest'
-
-  // Pesos para combinado (por defecto)
-  const WEIGHTS_DEFAULT = { pop: 0.5, gdp: 0.3, gdp_pc: 0.2 };
-
-  // métrica
-  function labelForMetric(m){
-    if (m==='gdp') return 'Objetivo (PIB USD)';
-    if (m==='gdp_pc') return 'Objetivo (PIB per cápita USD)';
-    return 'Objetivo (Población)';
-  }
-  function formatByMetric(m, v){
-    if (v==null || !isFinite(v)) return '—';
-    if (m==='pop') return fmtPop.format(v);
-    return fmtUSD.format(v);
-  }
-  function valueForCountryByMetric(c, m){
-    if (m==='gdp') return c.gdp ?? null;
-    if (m==='gdp_pc') return c.gdp_pc ?? null;
-    return c.pop ?? null;
-  }
-
-  /* ========= CARGA GEO ========= */
-  async function loadWorldGeo(){
-    const url = 'https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson';
-    const geo = await fetch(url, {mode:'cors'}).then(r=>r.json());
-    const arr = geo.features;
-    arr.forEach(f=>{
-      const p = f.properties || {};
-      p.name = p.name || p.ADMIN || p.NAME || p.name_long || p.sovereignt || 'País';
-      p.iso3 = String(p.ISO_A3 || p.ADM0_A3 || p.iso_a3 || f.id || '').toUpperCase().replace(/[^A-Z]/g,'');
-      f.properties = p;
+async function loadPopulation(){
+  const cached=cacheGet(CACHE_POP_KEY);
+  if(cached){ allCountries=cached; return 'cache'; }
+  const data=await fetch('https://restcountries.com/v3.1/all?fields=name,cca3,cca2,population').then(r=>r.json());
+  allCountries=data
+    .filter(d=>d?.name?.common&&Number.isFinite(d.population))
+    .map(d=>{
+      const iso3=String(d.cca3).toUpperCase();
+      // store cca2 for flag emoji
+      if(d.cca2) isoFlags.set(iso3, d.cca2);
+      return {iso3, name:d.name.common, pop:d.population, cca2:d.cca2||''};
     });
-    return arr;
+  cacheSet(CACHE_POP_KEY, allCountries);
+  return 'api';
+}
+
+async function loadWBIndicator(indicator){
+  const url=`https://api.worldbank.org/v2/country/all/indicator/${indicator}?format=json&per_page=20000`;
+  const json=await fetch(url).then(r=>r.json());
+  const map=new Map();
+  for(const row of json?.[1]||[]){
+    const iso3=row?.countryiso3code?.toUpperCase?.();
+    const val=row?.value;
+    const year=Number(row?.date);
+    if(!iso3||val==null) continue;
+    const prev=map.get(iso3);
+    if(!prev||year>prev.year) map.set(iso3,{year,value:Number(val)});
+  }
+  return map;
+}
+
+async function loadEconomics(){
+  const cached=cacheGet(CACHE_ECON_KEY);
+  if(cached){
+    const byIso=new Map(allCountries.map(c=>[c.iso3,c]));
+    for(const {iso3,gdp,gdp_pc} of cached){
+      const c=byIso.get(iso3);
+      if(c){ c.gdp=gdp; c.gdp_pc=gdp_pc; }
+    }
+    return;
   }
 
-  /* ========= CARGA POBLACIÓN ========= */
-  async function loadPopulation(){
-    const cache = localStorage.getItem('world_pop_v1');
-    if (cache){ allCountries = JSON.parse(cache); return {source:'cache'}; }
-    const data = await fetch('https://restcountries.com/v3.1/all?fields=name,cca3,population').then(r=>r.json());
-    allCountries = data.filter(d=>d?.name?.common && Number.isFinite(d.population))
-                       .map(d=>({ iso3:String(d.cca3).toUpperCase(), name:d.name.common, pop:d.population }));
-    localStorage.setItem('world_pop_v1', JSON.stringify(allCountries));
-    return {source:'api'};
-  }
+  setStatus('Cargando PIB…','loading');
+  const [gdpMap,gdpPcMap]=await Promise.all([
+    loadWBIndicator(WB_GDP_IND),
+    loadWBIndicator(WB_GDPPC_IND)
+  ]);
 
-  /* ========= CARGA ECONÓMICA (Banco Mundial) ========= */
-  async function loadWBIndicator(indicator){
-    const url = `https://api.worldbank.org/v2/country/all/indicator/${indicator}?format=json&per_page=20000`;
-    const json = await fetch(url).then(r=>r.json());
-    const series = json?.[1] || [];
-    const latestByIso = new Map(); // iso3 -> {year, value}
-    for (const row of series){
-      const iso3 = row?.countryiso3code?.toUpperCase?.();
-      const val = row?.value;
-      const year = Number(row?.date);
-      if (!iso3) continue;
-      if (val==null) continue;
-      const prev = latestByIso.get(iso3);
-      if (!prev || year > prev.year){
-        latestByIso.set(iso3, {year, value: Number(val) });
+  const byIso=new Map(allCountries.map(c=>[c.iso3,c]));
+  for(const [iso3,rec] of gdpMap){
+    const c=byIso.get(iso3); if(c) c.gdp=rec.value;
+  }
+  for(const [iso3,rec] of gdpPcMap){
+    const c=byIso.get(iso3); if(c) c.gdp_pc=rec.value;
+  }
+  allCountries=Array.from(byIso.values());
+
+  // cache just the econ fields
+  cacheSet(CACHE_ECON_KEY, allCountries.map(({iso3,gdp,gdp_pc})=>({iso3,gdp,gdp_pc})));
+}
+
+/* =====================================================================
+   ALGORITHMS
+===================================================================== */
+// Greedy-first + random refinement
+function findApproxCombination(items, target){
+  const metric = $('metricSelect').value;
+  const access = c => getVal(c, metric);
+
+  // Greedy pass
+  let greedySum=0, greedyChosen=[];
+  for(const it of items){
+    const v=access(it);
+    if(v==null||!isFinite(v)) continue;
+    if(greedySum+v <= target*(1+TOLERANCE)){
+      greedyChosen.push(it); greedySum+=v;
+      if(greedySum>=target) break;
+    }
+  }
+  let best={diff:Math.abs(target-greedySum), set:[...greedyChosen]};
+
+  // Random refinement
+  const maxSum=target*(1+TOLERANCE);
+  for(let t=0;t<TRIES;t++){
+    const offset=Math.floor(Math.random()*Math.min(25,items.length));
+    let sum=0,chosen=[];
+    for(let i=0;i<items.length;i++){
+      const it=items[(i+offset)%items.length];
+      const v=access(it);
+      if(v==null||!isFinite(v)) continue;
+      if(sum+v<=maxSum){
+        const ratio=sum/target;
+        const p=ratio<.5?1:ratio<.8?.85:.5;
+        if(Math.random()<p){ chosen.push(it); sum+=v; if(sum>=target) break; }
       }
     }
-    return latestByIso;
+    const diff=Math.abs(target-sum);
+    if(diff<best.diff){ best={diff,set:[...chosen]}; if(!diff) break; }
   }
+  return best.set.length?best:null;
+}
 
-  async function loadEconomics(){
-    setStatus('Cargando economía (PIB, PIB per cápita)…');
+const relErr=(a,b)=>(a>0&&isFinite(a)&&isFinite(b))?Math.abs(a-b)/a:Infinity;
 
-    const [gdpMap, gdpPcMap] = await Promise.all([
-      loadWBIndicator('NY.GDP.MKTP.CD'),
-      loadWBIndicator('NY.GDP.PCAP.CD')
-    ]);
-
-    // Partimos SOLO de países reales (restcountries) como base autoritativa
-    const byIso = new Map(allCountries.map(c => [c.iso3, c]));
-
-    // Aplica indicador SÓLO si el ISO existe en la base (ignora agregados/regiones WB)
-    const applyIfCountry = (map, field) => {
-      for (const [iso3, rec] of map) {
-        const c = byIso.get(iso3);
-        if (!c) continue;
-        c[field] = rec.value;
-      }
-    };
-
-    applyIfCountry(gdpMap, 'gdp');
-    applyIfCountry(gdpPcMap, 'gdp_pc');
-
-    // Volvemos al array (sin regiones/aggregates)
-    allCountries = Array.from(byIso.values());
-
-    setStatus('Economía cargada');
+function findNearestByMetric(base,metric){
+  const a=getVal(base,metric);
+  if(a==null) return null;
+  let best=null,bestErr=Infinity;
+  for(const c of allCountries){
+    if(c.iso3===base.iso3) continue;
+    const b=getVal(c,metric); if(b==null) continue;
+    const e=relErr(a,b);
+    if(e<bestErr){ best=c; bestErr=e; }
   }
+  return best?{country:best,err:bestErr}:null;
+}
 
-  /* ========= EQUIVALENCIAS (suma) ========= */
-  function findApproxCombination(items, target, {tries=350, tolerance=0.02, accessFn}={}){
-    let best = { diff: Infinity, set: [] };
-    const maxSum = target*(1+tolerance);
-    for (let t=0;t<tries;t++){
-      const offset = Math.floor(Math.random()*Math.min(20, items.length));
-      const takeProbBias = 0.85;
-      let sum=0, chosen=[];
-      for (let i=0;i<items.length;i++){
-        const it = items[(i+offset)%items.length];
-        const v = accessFn(it);
-        if (v==null || !isFinite(v)) continue;
-        if (sum+v<=maxSum){
-          const ratio = sum/target;
-          const p = ratio<0.5?1:(ratio<0.8?takeProbBias:0.5);
-          if (Math.random()<p){ chosen.push(it); sum+=v; if (sum>=target) break; }
-        }
-      }
-      const diff = Math.abs(target-sum);
-      if (diff<best.diff){ best={diff,set:[...chosen]}; if (!diff) break; }
-    }
-    return best.set.length? best:null;
+function combinedScore(base,cand){
+  const parts=[];
+  let wUsed=0;
+  if(base.pop!=null&&cand.pop!=null){ parts.push(WEIGHTS.pop*relErr(base.pop,cand.pop)); wUsed+=WEIGHTS.pop; }
+  if(base.gdp!=null&&cand.gdp!=null){ parts.push(WEIGHTS.gdp*relErr(base.gdp,cand.gdp)); wUsed+=WEIGHTS.gdp; }
+  if(base.gdp_pc!=null&&cand.gdp_pc!=null){ parts.push(WEIGHTS.gdp_pc*relErr(base.gdp_pc,cand.gdp_pc)); wUsed+=WEIGHTS.gdp_pc; }
+  if(!parts.length) return Infinity;
+  return parts.reduce((a,b)=>a+b,0)/(wUsed||1);
+}
+
+function findNearestCombined(base){
+  let best=null,bestScore=Infinity;
+  for(const cand of allCountries){
+    if(cand.iso3===base.iso3) continue;
+    const s=combinedScore(base,cand);
+    if(s<bestScore){ best=cand; bestScore=s; }
   }
+  return best?{country:best,score:bestScore}:null;
+}
 
-  /* ========= PARECIDOS 1:1 ========= */
-  const relErr = (a,b)=> (a>0 && isFinite(a) && isFinite(b)) ? Math.abs(a-b)/a : Infinity;
+function topKCombined(base,k){
+  return allCountries
+    .filter(c=>c.iso3!==base.iso3)
+    .map(c=>({country:c,score:combinedScore(base,c)}))
+    .filter(x=>isFinite(x.score))
+    .sort((a,b)=>a.score-b.score)
+    .slice(0,k);
+}
 
-  function findNearestByMetric(base, metric){
-    const a = valueForCountryByMetric(base, metric);
-    if (a==null) return null;
-    let best=null, bestErr=Infinity;
-    for (const c of allCountries){
-      if (c.iso3===base.iso3) continue;
-      const b = valueForCountryByMetric(c, metric);
-      if (b==null) continue;
-      const e = relErr(a,b);
-      if (e<bestErr){ best=c; bestErr=e; }
-    }
-    return best ? { country: best, err: bestErr } : null;
-  }
+/* =====================================================================
+   GLOBE COLORS
+===================================================================== */
+const capColor = f => {
+  const iso=(f.properties?.iso3||'').toUpperCase();
+  if(iso&&iso===selectedISO3) return '#34d399';
+  if(mode==='equiv'){ if(equivalentsISO3.has(iso)) return '#fbbf24'; }
+  else { if(iso&&iso===nearestISO3) return '#fbbf24'; }
+  return 'rgba(74,90,120,0.55)';
+};
+const sideColor = f => {
+  const iso=(f.properties?.iso3||'').toUpperCase();
+  if(iso===selectedISO3) return 'rgba(52,211,153,.4)';
+  if(equivalentsISO3.has(iso)||iso===nearestISO3) return 'rgba(251,191,36,.3)';
+  return 'rgba(30,50,80,.7)';
+};
+const altitude = f => {
+  const iso=(f.properties?.iso3||'').toUpperCase();
+  if(iso===selectedISO3) return .028;
+  if(mode==='equiv'){ if(equivalentsISO3.has(iso)) return .018; }
+  else { if(iso===nearestISO3) return .018; }
+  return .003;
+};
 
-  function combinedScore(base, cand, weights=WEIGHTS_DEFAULT){
-    const parts=[];
-    if (base.pop!=null && cand.pop!=null) parts.push(weights.pop * relErr(base.pop, cand.pop));
-    if (base.gdp!=null && cand.gdp!=null) parts.push(weights.gdp * relErr(base.gdp, cand.gdp));
-    if (base.gdp_pc!=null && cand.gdp_pc!=null) parts.push(weights.gdp_pc * relErr(base.gdp_pc, cand.gdp_pc));
-    if (!parts.length) return Infinity;
-    const weightUsed = ( (base.pop!=null && cand.pop!=null ? weights.pop : 0)
-                       + (base.gdp!=null && cand.gdp!=null ? weights.gdp : 0)
-                       + (base.gdp_pc!=null && cand.gdp_pc!=null ? weights.gdp_pc : 0) ) || 1;
-    return parts.reduce((a,b)=>a+b,0) / weightUsed;
-  }
-
-  function findNearestCombined(base, weights=WEIGHTS_DEFAULT){
-    let best=null, bestScore=Infinity;
-    for (const cand of allCountries){
-      if (cand.iso3===base.iso3) continue;
-      const s = combinedScore(base, cand, weights);
-      if (s<bestScore){ best=cand; bestScore=s; }
-    }
-    return best ? { country: best, score: bestScore } : null;
-  }
-
-  function topKCombined(base, k=5, weights=WEIGHTS_DEFAULT){
-    const arr = [];
-    for (const cand of allCountries){
-      if (cand.iso3===base.iso3) continue;
-      const s = combinedScore(base, cand, weights);
-      if (isFinite(s)) arr.push({country:cand, score:s});
-    }
-    return arr.sort((a,b)=>a.score-b.score).slice(0,k);
-  }
-
-  /* ========= COLOREO ========= */
-  const capColor = f => {
-    const iso = (f.properties?.iso3||'').toUpperCase();
-    if (iso && iso===selectedISO3) return '#80ffdb'; // seleccionado
-    if (mode==='equiv'){
-      if (equivalentsISO3.has(iso))  return '#ffd166'; // equivalentes suma
-    }else{
-      if (iso && iso===nearestCombinedISO3) return '#ffd166'; // más parecido combinado
-    }
-    return 'rgba(107,114,128,0.65)';
-  };
-  const sideColor = ()=>'rgba(42,61,102,0.9)';
-  const altitude  = f => {
-    const iso = (f.properties?.iso3||'').toUpperCase();
-    if (iso && iso===selectedISO3) return 0.025;
-    if (mode==='equiv'){
-      if (equivalentsISO3.has(iso)) return 0.016;
-    }else{
-      if (iso && iso===nearestCombinedISO3) return 0.016;
-    }
-    return 0.004;
-  };
 function refreshPolygons(){
   globe
     .polygonCapColor(capColor)
     .polygonSideColor(sideColor)
     .polygonAltitude(altitude)
-    .polygonsTransitionDuration(0)  // ← evita re-teselado animado
-    .polygonsData(features);
+    .polygonsTransitionDuration(0)
+    .polygonsData([...features]);
 }
 
-  /* ========= INTERFAZ DINÁMICA ========= */
-  function updateInfoLabelsForMode(){
-    if (mode==='equiv'){
-      $('labelSum').textContent = 'Suma equivalente';
-      $('labelDiff').textContent = 'Diferencia';
-      $('legendModeLabel').textContent = 'Equivalentes';
-    }else{
-      $('labelSum').textContent = 'Más parecido (combinado)';
-      $('labelDiff').textContent = 'Score (↓ es mejor)';
-      $('legendModeLabel').textContent = 'Más parecido';
-    }
-  }
-
-  function updateMetricAvailability(){
-    // En Equivalencias NO tiene sentido usar PIB per cápita, lo deshabilitamos:
-    const optGpc = [...metricSelect.options].find(o=>o.value==='gdp_pc');
-    if (!optGpc) return;
-    if (mode==='equiv'){
-      optGpc.disabled = true;
-      if (metricSelect.value==='gdp_pc'){
-        metricSelect.value = 'pop'; // cambiamos automáticamente a Población
-        $('labelTarget').textContent = labelForMetric('pop');
-      }
-    }else{
-      optGpc.disabled = false;
-    }
-  }
-
-  /* ========= INTERACCIÓN ========= */
-function onPickCountry(f){
-  const iso = (f.properties?.iso3||'').toUpperCase();
-  const rec = allCountries.find(c=>c.iso3===iso);
-  const metric = metricSelect.value; // 'pop' | 'gdp' | 'gdp_pc'
-  const access = (c)=> valueForCountryByMetric(c, metric);
-  const fmtVal = (v)=> formatByMetric(metric, v);
-
-  if(!rec){
-    setStatus('Sin datos del país seleccionado');
-    return;
-  }
-  selectedISO3 = iso;
-
-  $('labelTarget').textContent = labelForMetric(metric);
-  $('selName').textContent = rec.name;
-  $('selVal').textContent  = access(rec)!=null ? fmtVal(access(rec)) : '—';
-
-  if (mode==='equiv'){
-    // === MODO EQUIVALENCIAS (suma) ===
-    const target = access(rec);
-    if(target==null){
-      setStatus('Sin dato para la métrica elegida');
-      $('countriesList').innerHTML = `<div class="item"><span class="muted">No hay datos suficientes para esta métrica.</span></div>`;
-      refreshPolygons();
-      return;
-    }
-
-    const pool = allCountries
-      .filter(c=>c.iso3!==iso && access(c)!=null && isFinite(access(c)))
-      .sort((a,b)=> access(b)-access(a));
-
-    const res = findApproxCombination(pool, target, {tries:350, tolerance:0.02, accessFn:access});
-
-    equivalentsISO3.clear();
-    nearestCombinedISO3 = null;
-    let sum = 0;
-    if (res){
-      for (const p of res.set){ equivalentsISO3.add(p.iso3); sum+=access(p); }
-    }
-
-    $('sumVal').textContent  = res? fmtVal(sum) : '—';
-    $('diffVal').textContent = res? fmtVal(Math.abs(target-sum)) : '—';
-
-    $('countriesList').innerHTML = res
-      ? [`<div class="section">Equivalentes</div>`,
-         ...res.set.map(p=>`<div class="item"><strong>${p.name}</strong><span>${fmtVal(access(p))}</span></div>`)]
-          .join('')
-      : `<div class="item"><span class="muted">No hay países equivalentes listados</span></div>`;
-
-  } else {
-    // === MODO PARECIDOS 1:1 ===
-    equivalentsISO3.clear();
-
-    // Nearest por métrica y combinado
-    const nPop  = findNearestByMetric(rec,'pop');
-    const nGdp  = findNearestByMetric(rec,'gdp');
-    const nGpc  = findNearestByMetric(rec,'gdp_pc');
-    const nComb = findNearestCombined(rec, WEIGHTS_DEFAULT);
-    nearestCombinedISO3 = nComb?.country?.iso3 || null;
-
-    // Cabecera
-    $('sumVal').textContent = nComb ? `${nComb.country.name}` : '—';
-    $('diffVal').textContent = nComb && isFinite(nComb.score) ? `${(nComb.score*100).toFixed(2)}%` : '—';
-
-    // Construcción lista
-    const block = [];
-
-// === Más parecido (combinado) con color y enlace ===
-block.push(`<div class="section">Más parecido (combinado)</div>`);
-if (nComb){
-  const perc = (nComb.score*100).toFixed(2);
-
-  block.push(
-    `<div class="item">
-       <strong>
-         <a href="#" class="country-link" data-iso="${nComb.country.iso3}">
-           ${nComb.country.name}
-         </a>
-       </strong>
-       <span class="score-badge ${scoreClass(nComb.score)}">${perc}%</span>
-     </div>`
-  );
-}else{
-  block.push(`<div class="item"><span class="muted">—</span></div>`);
+/* =====================================================================
+   CENTROID (memoized)
+===================================================================== */
+function centroidOf(f){
+  const key=f.properties?.iso3||'';
+  if(centroidCache.has(key)) return centroidCache.get(key);
+  const g=f.geometry;
+  const rings=g.type==='Polygon'?[g.coordinates]:g.coordinates;
+  let sl=0,sg=0,n=0;
+  rings.forEach(poly=>poly[0].forEach(([lng,lat])=>{sl+=lat;sg+=lng;n++;}));
+  const c={lat:sl/n,lng:sg/n};
+  centroidCache.set(key,c);
+  return c;
 }
 
-    // === Por métrica (una sola vez) con badges de color ===
-    block.push(`<div class="section">Por métrica</div>`);
+/* =====================================================================
+   FLAG EMOJI
+===================================================================== */
+function flagEmoji(iso3){
+  const cca2 = isoFlags.get(iso3);
+  if(!cca2||cca2.length!==2) return '🌐';
+  return cca2.split('').map(c=>String.fromCodePoint(0x1F1E6-65+c.charCodeAt(0))).join('');
+}
 
-    // Población
-    if (nPop){
-      const p = (nPop.err*100).toFixed(2);
-      block.push(
-        `<div class="item">
-           <strong>Población</strong>
-           <span class="right-pack"><span class="tag">${nPop.country.name}</span><span class="score-badge ${scoreClass(nPop.err)}">${p}%</span></span>
-         </div>`
-      );
-    } else {
-      block.push(`<div class="item"><strong>Población</strong><span>—</span></div>`);
-    }
-
-    // PIB
-    if (nGdp){
-      const p = (nGdp.err*100).toFixed(2);
-      block.push(
-        `<div class="item">
-           <strong>PIB</strong>
-           <span class="right-pack"><span class="tag">${nGdp.country.name}</span><span class="score-badge ${scoreClass(nGdp.err)}">${p}%</span></span>
-         </div>`
-      );
-    } else {
-      block.push(`<div class="item"><strong>PIB</strong><span>—</span></div>`);
-    }
-
-    // PIB per cápita
-    if (nGpc){
-      const p = (nGpc.err*100).toFixed(2);
-      block.push(
-        `<div class="item">
-           <strong>PIB per cápita</strong>
-           <span class="right-pack"><span class="tag">${nGpc.country.name}</span><span class="score-badge ${scoreClass(nGpc.err)}">${p}%</span></span>
-         </div>`
-      );
-    } else {
-      block.push(`<div class="item"><strong>PIB per cápita</strong><span>—</span></div>`);
-    }
-
-    // === Otros similares (Top 5) SOLO si el mejor del resto < 50% y con color ===
-    let top5 = topKCombined(rec, 6, WEIGHTS_DEFAULT);
-    if (nComb){ top5 = top5.filter(x => x.country.iso3 !== nComb.country.iso3); }
-    if (!(top5.length && top5[0].score < 0.5)) top5 = [];
-
-    if (top5.length){
-      block.push(`<div class="section">Otros similares (Top 5 combinados)</div>`);
-      for (const r of top5.slice(0,5)){
-        const p = (r.score*100).toFixed(2);
-        block.push(
-          `<div class="item">
-             <span>${r.country.name}</span>
-             <span class="score-badge ${scoreClass(r.score)}">${p}%</span>
-           </div>`
-        );
-      }
-    }
-
-    $('countriesList').innerHTML = block.join('');
-  }
-// Enlazar los clicks en nombres de país
-document.querySelectorAll('.country-link').forEach(el=>{
-  el.addEventListener('click', ev=>{
-    ev.preventDefault();
-    const iso = el.dataset.iso;
-    const feat = features.find(ft => (ft.properties?.iso3||'').toUpperCase() === iso);
-    if (feat){
-      const c = centroidOfFeature(feat);
-      globe.pointOfView({ lat:c.lat, lng:c.lng, altitude:1.7 }, 1200);
-    }
-  });
+/* =====================================================================
+   SEARCH FILTER
+===================================================================== */
+let searchQuery = '';
+$('searchInput').addEventListener('input', e=>{
+  searchQuery = e.target.value.toLowerCase().trim();
+  filterList();
 });
+function filterList(){
+  if(!searchQuery){ document.querySelectorAll('.list-item,.list-section').forEach(el=>el.style.display=''); return; }
+  document.querySelectorAll('.list-item').forEach(el=>{
+    const txt=el.textContent.toLowerCase();
+    el.style.display = txt.includes(searchQuery)?'':'none';
+  });
+  document.querySelectorAll('.list-section').forEach(sec=>{
+    const next=sec.nextElementSibling;
+    sec.style.display=(next&&next.style.display!=='none')?'':'none';
+  });
+}
 
+/* =====================================================================
+   UI RENDERING
+===================================================================== */
+function renderModeLabels(){
+  if(mode==='equiv'){
+    $('labelSum').textContent='Suma equivalente';
+    $('labelDiff').textContent='Diferencia';
+    $('legendModeLabel').textContent='Equivalentes';
+  } else {
+    $('labelSum').textContent='Más parecido';
+    $('labelDiff').textContent='Score (↓ mejor)';
+    $('legendModeLabel').textContent='Más parecido';
+  }
+}
 
+function updateMetricOptions(){
+  const opt=[...$('metricSelect').options].find(o=>o.value==='gdp_pc');
+  if(!opt) return;
+  if(mode==='equiv'){
+    opt.disabled=true;
+    if($('metricSelect').value==='gdp_pc') $('metricSelect').value='pop';
+  } else {
+    opt.disabled=false;
+  }
+}
+
+function setMode(m){
+  mode=m;
+  $('btnModeEq').classList.toggle('active',m==='equiv');
+  $('btnModeNearest').classList.toggle('active',m==='nearest');
+  renderModeLabels();
+  updateMetricOptions();
+  if(selectedISO3){
+    const f=featureByIso.get(selectedISO3);
+    if(f) onPickCountry(f);
+  }
+}
+
+/* =====================================================================
+   MAIN INTERACTION
+===================================================================== */
+function onPickCountry(f){
+  const iso=(f.properties?.iso3||'').toUpperCase();
+  const rec=countryByIso.get(iso);
+  if(!rec){ setStatus('Sin datos','err'); return; }
+
+  selectedISO3=iso;
+  const metric=$('metricSelect').value;
+  const val=getVal(rec,metric);
+
+  // Update info panel
+  $('infoFlag').textContent=flagEmoji(iso);
+  $('selName').textContent=rec.name;
+  $('selISO').textContent=iso;
+  $('selISO').style.display='inline';
+  $('labelTarget').textContent=metricLabel(metric);
+  $('selVal').textContent=val!=null?formatVal(metric,val):'—';
+
+  globe.controls().autoRotate=false;
+
+  if(mode==='equiv'){
+    runEquiv(rec, metric, val, iso);
+  } else {
+    runNearest(rec, iso);
+  }
 
   refreshPolygons();
-  const c = centroidOfFeature(f);
-  globe.pointOfView({ lat:c.lat, lng:c.lng, altitude:1.7 }, 1200);
-  setStatus('Listo');
+  const c=centroidOf(f);
+  globe.pointOfView({lat:c.lat,lng:c.lng,altitude:1.6},1000);
+  setStatus('Listo','ok');
+  searchQuery=''; $('searchInput').value='';
 }
 
-
-  function centroidOfFeature(f){
-    const g = f.geometry;
-    const rings = g.type==='Polygon' ? [g.coordinates] : g.coordinates;
-    let sl=0, sg=0, n=0;
-    rings.forEach(poly=>poly[0].forEach(([lng,lat])=>{ sl+=lat; sg+=lng; n++; }));
-    return {lat: sl/n, lng: sg/n};
+function runEquiv(rec, metric, target, iso){
+  if(target==null){
+    $('countriesList').innerHTML=`<div class="empty-state"><div class="empty-icon">📭</div>Sin datos para esta métrica</div>`;
+    equivalentsISO3.clear(); nearestISO3=null;
+    refreshPolygons(); return;
   }
 
-  /* ========= INICIALIZACIÓN ========= */
-  async function main(){
-    try{
-      setStatus('Cargando datos…');
-      const [geo, popRes] = await Promise.all([loadWorldGeo(), loadPopulation()]);
-      features = geo;
+  const pool=allCountries
+    .filter(c=>c.iso3!==iso&&getVal(c,metric)!=null&&isFinite(getVal(c,metric)))
+    .sort((a,b)=>getVal(b,metric)-getVal(a,metric));
 
-      await loadEconomics();
+  const res=findApproxCombination(pool,target);
+  equivalentsISO3.clear(); nearestISO3=null;
+  let sum=0;
+  if(res){ for(const p of res.set){ equivalentsISO3.add(p.iso3); sum+=getVal(p,metric); } }
 
-      globe = Globe()(document.getElementById('globe'))
-        .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
-        .bumpImageUrl('https://unpkg.com/three-globe/example/img/earth-topology.png')
-        .backgroundImageUrl('https://unpkg.com/three-globe/example/img/night-sky.png')
-        .polygonsData(features)
-        .polygonCapColor(capColor)
-        .polygonSideColor(sideColor)
-        .polygonAltitude(altitude)
-        .polygonStrokeColor(()=> '#0b1022')
-        .onPolygonClick(onPickCountry)
-        .onPolygonHover(d=> document.body.style.cursor = d ? 'pointer' : 'grab');
+  $('sumVal').textContent=res?formatVal(metric,sum):'—';
+  $('diffVal').textContent=res?formatVal(metric,Math.abs(target-sum)):'—';
 
-      globe.renderer().setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  const html=res
+    ? [`<div class="list-section">Países equivalentes (${res.set.length})</div>`,
+       ...res.set.map(p=>`
+         <div class="list-item">
+           <strong>${flagEmoji(p.iso3)} ${p.name}</strong>
+           <span class="tag">${formatVal(metric,getVal(p,metric))}</span>
+         </div>`)]
+    : [`<div class="empty-state"><div class="empty-icon">🔍</div>No se encontró combinación</div>`];
 
-      globe.controls().autoRotate = true;
-      globe.controls().autoRotateSpeed = 0.7;
-      globe.controls().minDistance = 180;
-      globe.controls().maxDistance = 600;
+  $('countriesList').innerHTML=html.join('');
+  filterList();
+}
 
-      function resizeGlobe(){
-        const wrap = document.getElementById('globeWrap');
-        const {width, height} = wrap.getBoundingClientRect();
-        globe.width(width);
-        globe.height(height);
-        globe.renderer().setPixelRatio(Math.min(window.devicePixelRatio||1, 2));
-      }
-      const ro = new ResizeObserver(resizeGlobe);
-      ro.observe(document.getElementById('globeWrap'));
-      window.addEventListener('orientationchange', ()=>setTimeout(resizeGlobe, 250));
-      setTimeout(resizeGlobe, 0);
+function runNearest(rec, iso){
+  equivalentsISO3.clear();
 
-      updateInfoLabelsForMode();
-      updateMetricAvailability();
+  const nPop =findNearestByMetric(rec,'pop');
+  const nGdp =findNearestByMetric(rec,'gdp');
+  const nGpc =findNearestByMetric(rec,'gdp_pc');
+  const nComb=findNearestCombined(rec);
+  nearestISO3=nComb?.country?.iso3||null;
 
-      setStatus(popRes.source==='api' ? 'Datos cargados (API población)' : 'Datos cargados');
-    }catch(err){
-      console.error(err);
-      setStatus('Error cargando datos');
+  $('sumVal').textContent=nComb?`${flagEmoji(nComb.country.iso3)} ${nComb.country.name}`:'—';
+  $('diffVal').textContent=nComb&&isFinite(nComb.score)?`${(nComb.score*100).toFixed(2)}%`:'—';
+
+  const block=[];
+
+  // Best match
+  block.push(`<div class="list-section">Más parecido (combinado)</div>`);
+  if(nComb){
+    const perc=(nComb.score*100).toFixed(2);
+    block.push(`
+      <div class="list-item">
+        <strong>
+          <a href="#" class="country-link" data-iso="${nComb.country.iso3}">
+            ${flagEmoji(nComb.country.iso3)} ${nComb.country.name}
+          </a>
+        </strong>
+        <span class="badge ${badgeClass(nComb.score)}">${perc}%</span>
+      </div>`);
+  }
+
+  // By metric
+  block.push(`<div class="list-section">Por métrica</div>`);
+  const metrics=[
+    {key:'pop',label:'Población',res:nPop},
+    {key:'gdp',label:'PIB',res:nGdp},
+    {key:'gdp_pc',label:'PIB per cápita',res:nGpc},
+  ];
+  for(const {label,res} of metrics){
+    if(res){
+      const p=(res.err*100).toFixed(2);
+      block.push(`
+        <div class="list-item">
+          <strong>${label}</strong>
+          <span class="right-pack">
+            <span class="tag">${flagEmoji(res.country.iso3)} ${res.country.name}</span>
+            <span class="badge ${badgeClass(res.err)}">${p}%</span>
+          </span>
+        </div>`);
+    } else {
+      block.push(`<div class="list-item"><strong>${label}</strong><span class="tag">—</span></div>`);
     }
   }
-  main();
 
-  // Cambio de métrica
-  metricSelect.addEventListener('change', ()=>{
-    $('labelTarget').textContent = labelForMetric(metricSelect.value);
-    if (selectedISO3){
-      const f = features.find(ft=> (ft.properties?.iso3||'').toUpperCase()===selectedISO3);
-      if (f) onPickCountry(f);
-    }
-  });
+  // Top 5
+  let top5=topKCombined(rec,6);
+  if(nComb) top5=top5.filter(x=>x.country.iso3!==nComb.country.iso3);
+  top5=top5.filter(x=>x.score<.5).slice(0,5);
 
-  // Toggle de modo
-  $('btnModeEq').addEventListener('click', ()=>{
-    mode='equiv';
-    $('btnModeEq').classList.add('active');
-    $('btnModeNearest').classList.remove('active');
-    updateInfoLabelsForMode();
-    updateMetricAvailability();
-    if (selectedISO3){
-      const f = features.find(ft=> (ft.properties?.iso3||'').toUpperCase()===selectedISO3);
-      if (f) onPickCountry(f);
+  if(top5.length){
+    block.push(`<div class="list-section">Otros similares</div>`);
+    for(const r of top5){
+      const p=(r.score*100).toFixed(2);
+      block.push(`
+        <div class="list-item">
+          <span>${flagEmoji(r.country.iso3)} ${r.country.name}</span>
+          <span class="badge ${badgeClass(r.score)}">${p}%</span>
+        </div>`);
     }
-  });
-  $('btnModeNearest').addEventListener('click', ()=>{
-    mode='nearest';
-    $('btnModeNearest').classList.add('active');
-    $('btnModeEq').classList.remove('active');
-    updateInfoLabelsForMode();
-    updateMetricAvailability();
-    if (selectedISO3){
-      const f = features.find(ft=> (ft.properties?.iso3||'').toUpperCase()===selectedISO3);
-      if (f) onPickCountry(f);
-    }
+  }
+
+  $('countriesList').innerHTML=block.join('');
+
+  // Wire country-link clicks
+  $('countriesList').querySelectorAll('.country-link').forEach(el=>{
+    el.addEventListener('click',ev=>{
+      ev.preventDefault();
+      const f=featureByIso.get(el.dataset.iso);
+      if(f) onPickCountry(f);
+    });
   });
 
-  /* ========= DESCARGA JSON ========= */
-  $('btnDownload').addEventListener('click', ()=>{
-    const payload = allCountries.slice().sort((a,b)=> a.name.localeCompare(b.name));
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(payload, null, 2));
-    const a = document.createElement('a'); a.href=dataStr; a.download='paises_pop_gdp.json';
-    document.body.appendChild(a); a.click(); a.remove();
-  });
+  filterList();
+}
+
+/* =====================================================================
+   TOOLTIP ON HOVER
+===================================================================== */
+const tooltip=$('tooltip');
+let tooltipTimeout;
+function showTooltip(f, x, y){
+  clearTimeout(tooltipTimeout);
+  const iso=(f?.properties?.iso3||'').toUpperCase();
+  const rec=countryByIso.get(iso);
+  if(!rec||!iso){ hideTooltip(); return; }
+  const metric=$('metricSelect').value;
+  const val=getVal(rec,metric);
+  $('ttFlag').textContent=flagEmoji(iso);
+  $('ttName').textContent=rec.name;
+  $('ttVal').textContent=val!=null?`${metricLabel(metric)}: ${formatVal(metric,val)}`:iso;
+  tooltip.style.left=(x+14)+'px';
+  tooltip.style.top=(y-10)+'px';
+  tooltip.classList.add('show');
+}
+function hideTooltip(){
+  tooltipTimeout=setTimeout(()=>tooltip.classList.remove('show'),100);
+}
+
+/* =====================================================================
+   INIT
+===================================================================== */
+let resizeTimer;
+function debounceResize(){
+  clearTimeout(resizeTimer);
+  resizeTimer=setTimeout(()=>{
+    const wrap=$('globeWrap');
+    const {width,height}=wrap.getBoundingClientRect();
+    globe.width(width).height(height);
+    globe.renderer().setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+  },120);
+}
+
+async function main(){
+  try{
+    setStatus('Cargando geo…','loading'); setProgress(.1);
+    const [geo, popSrc]=await Promise.all([loadGeo(), loadPopulation()]);
+    features=geo;
+    setProgress(.4);
+
+    setStatus('Cargando PIB…','loading');
+    await loadEconomics();
+    setProgress(.8);
+
+    // Build lookup maps
+    countryByIso=new Map(allCountries.map(c=>[c.iso3,c]));
+    // Also populate isoFlags from loaded data
+    for(const c of allCountries){ if(c.cca2) isoFlags.set(c.iso3,c.cca2); }
+    for(const f of features){ featureByIso.set((f.properties?.iso3||'').toUpperCase(),f); }
+
+    // Init globe
+    globe=Globe()($('globe'))
+      .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
+      .bumpImageUrl('https://unpkg.com/three-globe/example/img/earth-topology.png')
+      .backgroundImageUrl('https://unpkg.com/three-globe/example/img/night-sky.png')
+      .polygonsData(features)
+      .polygonCapColor(capColor)
+      .polygonSideColor(sideColor)
+      .polygonAltitude(altitude)
+      .polygonStrokeColor(()=>'rgba(10,20,40,.8)')
+      .onPolygonClick(onPickCountry)
+      .onPolygonHover((d,prev,{x,y})=>{
+        document.body.style.cursor=d?'pointer':'grab';
+        if(d) showTooltip(d,x,y); else hideTooltip();
+      });
+
+    globe.renderer().setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+    const ctrl=globe.controls();
+    ctrl.autoRotate=true; ctrl.autoRotateSpeed=0.5;
+    ctrl.minDistance=180; ctrl.maxDistance=600;
+    ctrl.enableDamping=true; ctrl.dampingFactor=.08;
+
+    const ro=new ResizeObserver(debounceResize);
+    ro.observe($('globeWrap'));
+    window.addEventListener('orientationchange',()=>setTimeout(debounceResize,300));
+    debounceResize();
+
+    renderModeLabels(); updateMetricOptions();
+    setProgress(1);
+    setTimeout(()=>setProgress(0),600);
+    setStatus(popSrc==='api'?'Datos API':'Datos cache','ok');
+
+  }catch(err){
+    console.error(err);
+    setStatus('Error','err');
+  }
+}
+main();
+
+/* =====================================================================
+   EVENT LISTENERS
+===================================================================== */
+$('metricSelect').addEventListener('change',()=>{
+  $('labelTarget').textContent=metricLabel($('metricSelect').value);
+  if(selectedISO3){ const f=featureByIso.get(selectedISO3); if(f) onPickCountry(f); }
+});
+$('btnModeEq').addEventListener('click',()=>setMode('equiv'));
+$('btnModeNearest').addEventListener('click',()=>setMode('nearest'));
+
+$('btnDownload').addEventListener('click',()=>{
+  const payload=[...allCountries].sort((a,b)=>a.name.localeCompare(b.name));
+  const url='data:text/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(payload,null,2));
+  Object.assign(document.createElement('a'),{href:url,download:'paises_datos.json'}).click();
+});
 </script>
 </body>
 </html>
