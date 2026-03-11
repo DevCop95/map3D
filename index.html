@@ -1,1239 +1,546 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
-  <title>Map 3D · Explorador de Países</title>
-  <link rel="icon" type="image/png" sizes="64x64" href="assets/img/plogo.ico">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-  <script src="https://unpkg.com/globe.gl"></script>
-  <style>
-    :root{
-      --bg:#060d1a; --bg2:#0a1628; --panel:#0d1e35; --panel2:#0f2240;
-      --border:#1a3050; --border2:#22406a;
-      --text:#dde8f8; --text2:#8ba4c4; --text3:#4d6a8a;
-      --accent:#38bdf8; --accent2:#0ea5e9;
-      --green:#34d399; --yellow:#fbbf24; --orange:#fb923c; --red:#f87171;
-      --sel:#34d399;
-      --vh:1vh;
-      --safe-top:env(safe-area-inset-top,0px);
-      --safe-bottom:env(safe-area-inset-bottom,0px);
-    }
-    *{box-sizing:border-box;margin:0;padding:0;}
-    html,body{
-      height:100%; background:var(--bg); color:var(--text);
-      font-family:'Space Grotesk',system-ui,sans-serif;
-      -webkit-tap-highlight-color:transparent; overflow:hidden;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yared Henriquez — DevYHB</title>
+<link rel="icon" href="https://yared17.github.io/Responsive-PortfolioYHB/assets/img/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,700;12..96,800&family=DM+Mono:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css">
+<style>
+:root{
+  --bg:#f5f4f0;--bg2:#eceae4;--surface:#ffffff;
+  --ink:#16181c;--ink2:#3a3d44;--muted:#878a93;
+  --accent:#0e7a5f;--accent2:#0a5c47;--line:#e0ddd6;
+  --fh:'Bricolage Grotesque',sans-serif;--fm:'DM Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--fh);background:var(--bg);color:var(--ink);overflow-x:hidden;font-size:16px;line-height:1.6;}
+img{display:block;max-width:100%;}
+a{text-decoration:none;color:inherit;}
+::-webkit-scrollbar{width:3px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--accent);}
 
-    /* LAYOUT */
-    #app{
-      display:grid;
-      grid-template-columns:320px 1fr;
-      grid-template-rows:auto 1fr;
-      gap:8px; height:calc(var(--vh)*100);
-      padding:8px;
-      padding-top:calc(8px + var(--safe-top));
-      padding-bottom:calc(8px + var(--safe-bottom));
-    }
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1.2rem 5vw;background:rgba(245,244,240,0.92);backdrop-filter:blur(16px);border-bottom:1px solid transparent;transition:border-color .3s;}
+nav.scrolled{border-color:var(--line);}
+.nlogo{font-size:1rem;font-weight:800;letter-spacing:-.02em;color:var(--ink);}
+.nlogo em{color:var(--accent);font-style:normal;}
+.nlinks{display:flex;gap:2.5rem;list-style:none;align-items:center;}
+.nlinks a{font-size:.8rem;font-weight:500;color:var(--ink2);transition:color .2s;}
+.nlinks a:hover{color:var(--accent);}
+.ncta{background:var(--ink)!important;color:#fff!important;padding:.5rem 1.3rem;font-size:.78rem;font-weight:600;transition:background .2s!important;}
+.ncta:hover{background:var(--accent)!important;}
 
-    /* HEADER */
-    header{
-      grid-column:1/3;
-      background:linear-gradient(135deg,rgba(56,189,248,.07),rgba(14,165,233,.02));
-      border:1px solid var(--border); border-radius:12px;
-      padding:8px 14px;
-      display:flex; align-items:center; justify-content:space-between; gap:10px;
-    }
-    .hlogo{display:flex;align-items:center;gap:10px;}
-    .hlogo-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;}
-    header h1{font-size:16px;font-weight:700;letter-spacing:-.3px;white-space:nowrap;}
-    header h1 span{color:var(--accent);}
-    .hcontrols{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+/* HERO */
+#hero{min-height:100vh;display:grid;grid-template-columns:1fr;align-items:center;gap:4rem;padding:8rem 5vw 5rem;max-width:900px;margin:0 auto;}
+.hero-tag{display:inline-flex;align-items:center;gap:.6rem;font-family:var(--fm);font-size:.72rem;color:var(--accent);background:rgba(14,122,95,.08);border:1px solid rgba(14,122,95,.2);padding:.35rem .9rem;margin-bottom:2rem;}
+.hero-tag::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);animation:blink 2s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
+h1.hname{font-size:clamp(3.2rem,6vw,6.5rem);font-weight:800;line-height:1;letter-spacing:-.04em;color:var(--ink);margin-bottom:.3em;}
+h1.hname em{font-style:normal;color:var(--accent);display:block;}
+.hrole{font-family:var(--fm);font-size:.8rem;color:var(--muted);margin-bottom:2.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;}
+.hrole span{color:var(--ink2);}
+.hrole-sep{color:var(--line);}
+.hbtns{display:flex;gap:.8rem;flex-wrap:wrap;}
+.btn-solid{display:inline-flex;align-items:center;gap:.5rem;background:var(--ink);color:#fff;padding:.75rem 1.8rem;font-size:.82rem;font-weight:600;font-family:var(--fh);transition:background .2s;}
+.btn-solid:hover{background:var(--accent);}
+.btn-line{display:inline-flex;align-items:center;gap:.5rem;background:transparent;border:1.5px solid var(--ink);color:var(--ink);padding:.75rem 1.8rem;font-size:.82rem;font-weight:500;font-family:var(--fh);transition:border-color .2s,color .2s;}
+.btn-line:hover{border-color:var(--accent);color:var(--accent);}
+.hstats{display:flex;gap:2.5rem;margin-top:3.5rem;padding-top:2.5rem;border-top:1px solid var(--line);}
+.hstat-n{font-size:2rem;font-weight:800;color:var(--ink);letter-spacing:-.04em;line-height:1;}
+.hstat-l{font-size:.7rem;color:var(--muted);margin-top:.2rem;font-family:var(--fm);}
 
-    /* BUTTONS */
-    .btn{
-      background:var(--panel2);color:var(--text);
-      border:1px solid var(--border);
-      padding:7px 13px;border-radius:8px;
-      font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;
-      cursor:pointer;transition:all .15s;white-space:nowrap;
-    }
-    .btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(56,189,248,.06);}
-    .btn.active{border-color:var(--accent);background:rgba(56,189,248,.12);color:var(--accent);}
-    select.btn{appearance:none;padding-right:28px;
-      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238ba4c4' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-      background-repeat:no-repeat;background-position:right 8px center;
-    }
-    #statusPill{
-      font-family:'JetBrains Mono',monospace;font-size:11px;
-      color:var(--text2);background:rgba(0,0,0,.3);
-      border:1px solid var(--border);border-radius:6px;
-      padding:5px 10px;white-space:nowrap;min-width:80px;text-align:center;
-    }
-    #statusPill.loading{color:var(--yellow);border-color:rgba(251,191,36,.3);}
-    #statusPill.ok{color:var(--green);border-color:rgba(52,211,153,.3);}
-    #statusPill.err{color:var(--red);border-color:rgba(248,113,113,.3);}
+/* REVEAL */
+.reveal{opacity:0;transform:translateY(20px);transition:opacity .6s ease,transform .6s ease;}
+.reveal.in{opacity:1;transform:none;}
+.d1{transition-delay:.1s;}.d2{transition-delay:.18s;}.d3{transition-delay:.26s;}.d4{transition-delay:.34s;}
 
-    /* FLAG IMAGE */
-    .flag-img{
-      display:inline-block;vertical-align:middle;
-      border-radius:2px;object-fit:cover;flex-shrink:0;
-      box-shadow:0 1px 3px rgba(0,0,0,.4);
-    }
-    .flag-img-sm{width:20px;height:15px;}
-    .flag-img-md{width:26px;height:19px;}
-    .flag-img-lg{width:36px;height:27px;}
-    .flag-img-xl{width:44px;height:33px;}
+/* SECTION */
+.section{padding:7rem 5vw;max-width:1200px;margin:0 auto;}
+.sec-label{display:flex;align-items:center;gap:1rem;margin-bottom:3rem;}
+.sec-label-tag{font-family:var(--fm);font-size:.68rem;color:var(--accent);background:rgba(14,122,95,.08);border:1px solid rgba(14,122,95,.2);padding:.25rem .75rem;}
+.sec-label-line{flex:1;height:1px;background:var(--line);}
+h2.stit{font-size:clamp(2rem,4vw,3.5rem);font-weight:800;letter-spacing:-.03em;color:var(--ink);line-height:1.1;margin-bottom:1rem;}
+h2.stit em{font-style:normal;color:var(--accent);}
+.stit-sub{font-size:1rem;color:var(--muted);font-weight:400;margin-bottom:3.5rem;max-width:500px;}
+.sdivider{height:1px;background:var(--line);margin:0 5vw;}
 
-    /* SIDEBAR */
-    #sidebar{
-      grid-row:2;grid-column:1;
-      background:var(--panel);border:1px solid var(--border);border-radius:12px;
-      display:flex;flex-direction:column;gap:0;min-height:0;overflow:hidden;
-    }
-    #info{
-      padding:12px 14px;border-bottom:1px solid var(--border);
-      background:linear-gradient(135deg,rgba(56,189,248,.04),transparent);
-    }
-    .info-country{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
-    .info-flag{font-size:22px;line-height:1;flex-shrink:0;display:flex;align-items:center;}
-    .info-name{font-size:16px;font-weight:700;color:var(--text);letter-spacing:-.3px;}
-    .info-iso{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text3);background:var(--bg2);border:1px solid var(--border);padding:1px 6px;border-radius:4px;}
-    .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
-    .stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;}
-    .stat-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;font-family:'JetBrains Mono',monospace;margin-bottom:3px;}
-    .stat-val{font-size:13px;font-weight:700;color:var(--accent);font-family:'JetBrains Mono',monospace;}
-    .stat-val.green{color:var(--green);} .stat-val.yellow{color:var(--yellow);}
-    #progressBar{
-      position:absolute;bottom:0;left:0;right:0;height:2px;
-      background:linear-gradient(90deg,var(--accent),var(--green));
-      transform-origin:left;transform:scaleX(0);
-      transition:transform .4s ease;border-radius:0 0 12px 12px;
-    }
-    #legend{display:flex;gap:6px;padding:8px 14px;border-bottom:1px solid var(--border);flex-wrap:wrap;}
-    .legend-item{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border:1px solid var(--border);border-radius:6px;background:rgba(255,255,255,.02);font-size:11px;color:var(--text2);}
-    .sw{width:10px;height:10px;border-radius:2px;}
-    .sw.sel{background:var(--sel);} .sw.base{background:var(--text3);}
+/* ABOUT */
+.about-grid{display:grid;grid-template-columns:340px 1fr;gap:6rem;align-items:start;}
+.about-img{position:sticky;top:7rem;border-radius:4px;overflow:hidden;box-shadow:0 16px 48px rgba(22,24,28,.1);}
+.about-img img{width:100%;aspect-ratio:3/4;object-fit:cover;}
+.about-img-cap{background:var(--surface);border-top:1px solid var(--line);padding:.8rem 1rem;font-family:var(--fm);font-size:.68rem;color:var(--muted);}
+.about-text p{font-size:1rem;color:var(--ink2);line-height:1.85;margin-bottom:1.5rem;font-weight:400;}
+.about-text p strong{color:var(--ink);font-weight:700;}
+.about-meta{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);margin-top:2.5rem;}
+.am{padding:1rem 1.2rem;border-right:1px solid var(--line);border-bottom:1px solid var(--line);}
+.am:nth-child(even){border-right:none;}
+.am:nth-last-child(-n+2){border-bottom:none;}
+.am-k{font-family:var(--fm);font-size:.62rem;color:var(--muted);margin-bottom:.3rem;}
+.am-v{font-size:.88rem;font-weight:600;color:var(--ink);}
+.am-v.av{color:var(--accent);}
 
-    /* SEARCH */
-    .search-wrap{padding:8px 14px;border-bottom:1px solid var(--border);position:relative;}
-    #searchInput{
-      width:100%;background:var(--bg2);border:1px solid var(--border);
-      border-radius:8px;padding:7px 10px 7px 32px;
-      color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:13px;
-      outline:none;transition:border-color .15s;
-      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%234d6a8a' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");
-      background-repeat:no-repeat;background-position:10px center;
-    }
-    #searchInput:focus{border-color:var(--border2);}
-    #searchInput::placeholder{color:var(--text3);}
-    #searchDrop{
-      position:absolute;left:14px;right:14px;top:100%;z-index:100;
-      background:var(--panel);border:1px solid var(--border2);
-      border-top:none;border-radius:0 0 10px 10px;
-      max-height:220px;overflow-y:auto;display:none;
-      box-shadow:0 8px 24px rgba(0,0,0,.5);
-    }
-    .sdrop-item{
-      display:flex;justify-content:space-between;align-items:center;
-      padding:8px 14px;cursor:pointer;font-size:13px;color:var(--text);
-      border-bottom:1px solid var(--border);transition:background .12s;
-      gap:8px;
-    }
-    .sdrop-item:hover{background:rgba(56,189,248,.08);}
-    .sdrop-item .sdrop-val{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);}
-    .sdrop-item .sdrop-name{display:flex;align-items:center;gap:8px;flex:1;}
+/* SKILLS */
+.ski-grid{display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:start;}
+.ski-left{position:sticky;top:7rem;}
+.ski-left p{font-size:1rem;color:var(--ink2);line-height:1.8;margin-top:1.5rem;}
+.skigroups{display:flex;flex-direction:column;gap:2rem;}
+.skig-title{font-family:var(--fm);font-size:.65rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;padding-bottom:.7rem;border-bottom:1px solid var(--line);margin-bottom:.9rem;}
+.skitags{display:flex;flex-wrap:wrap;gap:.5rem;}
+.skitag{display:inline-flex;align-items:center;gap:.5rem;padding:.42rem .9rem;background:var(--surface);border:1px solid var(--line);font-size:.78rem;font-weight:500;color:var(--ink2);border-radius:2px;transition:border-color .2s,color .2s,background .2s;}
+.skitag i{font-size:1rem;}
+.skitag:hover{border-color:var(--accent);color:var(--accent);background:rgba(14,122,95,.04);}
 
-    /* ── COUNTRY EXTRA INFO ── */
-    .country-extra{
-      padding:6px 12px 8px;
-      display:flex;flex-wrap:wrap;gap:4px 10px;
-      border-bottom:1px solid var(--border);
-      font-size:11px;color:var(--text3);
-    }
-    .country-extra span{display:flex;align-items:center;gap:3px;}
-    .country-extra strong{color:var(--text2);}
+/* RESUME */
+.res-grid{display:grid;grid-template-columns:1fr 1fr;gap:5rem;}
+.res-col-title{font-family:var(--fm);font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;display:flex;align-items:center;gap:1rem;margin-bottom:2rem;}
+.res-col-title i{color:var(--accent);font-size:.9rem;}
+.res-col-title::after{content:'';flex:1;height:1px;background:var(--line);}
+.tl{display:flex;flex-direction:column;}
+.tli{display:grid;grid-template-columns:88px 1fr;gap:1.5rem;padding:1.8rem 0;border-bottom:1px solid var(--line);position:relative;}
+.tli:first-child{padding-top:0;}
+.tly{font-family:var(--fm);font-size:.68rem;color:var(--muted);line-height:1.6;padding-top:.15rem;}
+.tldo{position:absolute;left:87px;top:1.9rem;width:8px;height:8px;border-radius:50%;background:var(--accent);}
+.tli:first-child .tldo{top:0;}
+.tltit{font-size:1rem;font-weight:700;color:var(--ink);margin-bottom:.2rem;}
+.tlorg{font-family:var(--fm);font-size:.7rem;color:var(--accent);margin-bottom:.5rem;}
+.tldesc{font-size:.85rem;color:var(--muted);line-height:1.75;}
 
-    /* ── WEIGHTS PANEL ── */
-    #weightsPanel{
-      padding:8px 12px 10px;
-      border-bottom:1px solid var(--border);
-    }
-    .weights-header{
-      display:flex;align-items:center;justify-content:space-between;
-      cursor:pointer;user-select:none;margin-bottom:0;
-    }
-    .weights-header span{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);}
-    .weights-header .w-chevron{font-size:10px;color:var(--text3);transition:transform .2s;}
-    .weights-header.open .w-chevron{transform:rotate(180deg);}
-    .weights-body{
-      max-height:0;overflow:hidden;
-      transition:max-height .25s ease;
-    }
-    .weights-body.open{max-height:200px;}
-    .w-row{display:flex;align-items:center;gap:8px;margin-top:8px;}
-    .w-label{font-size:11px;color:var(--text2);width:90px;flex-shrink:0;}
-    .w-slider{
-      flex:1;-webkit-appearance:none;appearance:none;
-      height:4px;border-radius:2px;background:var(--border2);outline:none;cursor:pointer;
-    }
-    .w-slider::-webkit-slider-thumb{
-      -webkit-appearance:none;width:14px;height:14px;border-radius:50%;
-      background:var(--accent);cursor:pointer;
-    }
-    .w-pct{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);width:30px;text-align:right;}
-    .weights-note{font-size:10px;color:var(--text3);margin-top:6px;text-align:center;}
+/* PORTFOLIO */
+.pfilt{display:flex;gap:.4rem;margin-bottom:2.5rem;flex-wrap:wrap;}
+.pfbtn{background:transparent;border:1px solid var(--line);font-family:var(--fh);font-size:.78rem;font-weight:500;color:var(--muted);padding:.45rem 1.1rem;cursor:pointer;transition:all .2s;}
+.pfbtn:hover{background:var(--ink);border-color:var(--ink);color:#fff;}
+.pfbtn.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);}
+.pitem{position:relative;overflow:hidden;aspect-ratio:4/3;background:var(--bg2);cursor:pointer;}
+.pitem img{width:100%;height:100%;object-fit:cover;transition:transform .5s ease;}
+.pitem:hover img{transform:scale(1.05);}
+.pov{position:absolute;inset:0;background:rgba(14,122,95,.9);opacity:0;transition:opacity .3s;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:.4rem;padding:1.5rem;text-align:center;}
+.pitem:hover .pov{opacity:1;}
+.pov-tag{font-family:var(--fm);font-size:.65rem;color:rgba(255,255,255,.75);letter-spacing:.1em;text-transform:uppercase;}
+.pov-tit{font-size:1.05rem;font-weight:700;color:#fff;line-height:1.3;}
+.tgrid{display:none;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:1px;background:var(--line);}
+.tgrid.vis{display:grid;}
+.tcell{background:var(--surface);padding:1.5rem .8rem;text-align:center;transition:background .2s;}
+.tcell:hover{background:rgba(14,122,95,.05);}
+.tcell i{font-size:2rem;display:block;margin-bottom:.5rem;}
+.tcell span{font-family:var(--fm);font-size:.65rem;color:var(--muted);}
 
-    /* ── GEMELO MODAL ── */
-    #gModal{
-      position:fixed;inset:0;z-index:1100;
-      display:flex;align-items:center;justify-content:center;
-      padding:16px;
-      opacity:0;pointer-events:none;
-      transition:opacity .2s;
-    }
-    #gModal.show{opacity:1;pointer-events:all;}
-    #gModalBackdrop{
-      position:absolute;inset:0;
-      background:rgba(2,8,18,.75);backdrop-filter:blur(4px);
-    }
-    #gModalBox{
-      position:relative;z-index:1101;
-      background:var(--panel);
-      border:1px solid var(--border2);
-      border-radius:16px;
-      width:100%;max-width:420px;
-      max-height:90dvh;
-      display:flex;flex-direction:column;
-      box-shadow:0 24px 60px rgba(0,0,0,.6);
-      overflow:hidden;
-      transform:translateY(12px) scale(.97);
-      transition:transform .22s cubic-bezier(.34,1.4,.64,1);
-    }
-    #gModal.show #gModalBox{transform:translateY(0) scale(1);}
-    #gModalHeader{
-      padding:16px 18px 12px;
-      background:linear-gradient(135deg,rgba(56,189,248,.06),transparent);
-      border-bottom:1px solid var(--border);
-    }
-    .gm-flags{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
-    .gm-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px;}
-    .gm-subtitle{
-      display:inline-flex;align-items:center;gap:5px;
-      font-size:12px;color:var(--green);font-weight:600;
-      background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);
-      padding:2px 8px;border-radius:20px;
-    }
-    #gModalClose{
-      position:absolute;top:12px;right:14px;
-      background:rgba(255,255,255,.06);border:1px solid var(--border);
-      color:var(--text2);width:28px;height:28px;border-radius:8px;
-      font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;
-    }
-    #gModalClose:hover{color:var(--text);border-color:var(--border2);}
-    #gModalBody{padding:16px 18px 18px;display:flex;flex-direction:column;gap:14px;overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch;}
-    .gm-frase{
-      font-size:13px;color:var(--text);line-height:1.65;
-      padding:10px 12px;
-      background:rgba(56,189,248,.04);
-      border-left:3px solid var(--accent);
-      border-radius:0 8px 8px 0;
-    }
-    .gm-frase em{color:var(--accent);font-style:normal;font-weight:600;}
-    .gm-metrics{display:flex;flex-direction:column;gap:8px;}
-    .gm-metric-row{display:flex;align-items:center;gap:10px;}
-    .gm-label{
-      font-family:'JetBrains Mono',monospace;font-size:10px;
-      color:var(--text3);text-transform:uppercase;letter-spacing:.5px;
-      width:92px;flex-shrink:0;
-    }
-    .gm-bar-wrap{flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden;}
-    .gm-bar{height:100%;border-radius:4px;transition:width .6s .1s ease-out;}
-    .gm-pct{
-      font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;
-      width:40px;text-align:right;flex-shrink:0;
-    }
-    .gm-info-grid{
-      display:grid;grid-template-columns:1fr auto 1fr;
-      gap:6px;align-items:start;
-    }
-    .gm-info-col{display:flex;flex-direction:column;gap:5px;}
-    .gm-info-col.right{text-align:right;align-items:flex-end;}
-    .gm-info-col.left{text-align:left;align-items:flex-start;}
-    .gm-info-divider{
-      display:flex;flex-direction:column;align-items:center;
-      justify-content:flex-start;padding-top:2px;gap:4px;
-    }
-    .gm-info-chip{
-      font-size:11px;padding:2px 8px;border-radius:6px;
-      background:rgba(56,189,248,.07);border:1px solid var(--border);
-      color:var(--text2);white-space:nowrap;max-width:100%;
-      overflow:hidden;text-overflow:ellipsis;
-    }
-    .gm-info-chip.same{
-      background:rgba(52,211,153,.08);border-color:rgba(52,211,153,.2);
-      color:var(--green);
-    }
-    .gm-info-chip.diff{
-      background:rgba(251,146,60,.06);border-color:rgba(251,146,60,.15);
-      color:var(--orange);
-    }
-    .gm-section-title{
-      font-size:10px;text-transform:uppercase;letter-spacing:.6px;
-      color:var(--text3);margin-bottom:8px;padding-bottom:5px;
-      border-bottom:1px solid var(--border);
-    }
-    .gm-section{margin-bottom:4px;}
-    .gm-alert{
-      padding:9px 12px;
-      background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.2);
-      border-radius:8px;font-size:12px;color:var(--yellow);line-height:1.5;
-    }
-    .gm-btn{
-      display:block;width:100%;padding:10px;
-      background:rgba(56,189,248,.08);border:1px solid var(--border2);
-      border-radius:10px;color:var(--accent);
-      font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;
-      cursor:pointer;text-align:center;transition:background .15s;
-    }
-    .gm-btn:hover{background:rgba(56,189,248,.15);}
-    .empty-state{text-align:center;padding:40px 20px;color:var(--text3);font-size:13px;line-height:1.8;}
-    .empty-icon{font-size:32px;margin-bottom:10px;}
-    .list-item{animation:fadeUp .18s ease both;}
-    @keyframes fadeUp{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+/* SERVICES */
+.svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);}
+.svc-card{background:var(--surface);padding:2.2rem 2rem;transition:background .25s;position:relative;overflow:hidden;}
+.svc-card:hover{background:var(--ink);}
+.svc-card:hover .svc-title,.svc-card:hover .svc-desc{color:#fff;}
+.svc-card:hover .svc-ico{color:var(--accent);}
+.svc-n{font-family:var(--fm);font-size:.65rem;color:var(--muted);margin-bottom:1.5rem;}
+.svc-card:hover .svc-n{color:rgba(255,255,255,.4);}
+.svc-ico{font-size:1.4rem;color:var(--accent);margin-bottom:1rem;display:block;transition:color .25s;}
+.svc-title{font-size:1rem;font-weight:700;color:var(--ink);margin-bottom:.6rem;transition:color .25s;}
+.svc-desc{font-size:.85rem;color:var(--muted);line-height:1.75;transition:color .25s;}
 
-    /* LIST */
-    #countriesList{overflow:auto;flex:1;padding:6px;-webkit-overflow-scrolling:touch;scroll-behavior:smooth;}
-    #countriesList::-webkit-scrollbar{width:3px;}
-    #countriesList::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px;}
-    .list-section{
-      padding:6px 8px 4px;
-      font-family:'JetBrains Mono',monospace;font-size:10px;
-      color:var(--text3);text-transform:uppercase;letter-spacing:.8px;
-      display:flex;align-items:center;gap:8px;
-    }
-    .list-section::after{content:'';flex:1;height:1px;background:var(--border);}
-    .list-item{
-      display:flex;justify-content:space-between;align-items:center;gap:6px;
-      padding:7px 10px;border-radius:8px;
-      font-size:13px;color:var(--text2);
-      transition:background .12s;
-    }
-    .list-item:hover{background:rgba(56,189,248,.05);}
-    .list-item strong{color:var(--text);font-weight:600;}
-    .list-item .tag{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text2);}
-    .right-pack{display:inline-flex;gap:6px;align-items:center;flex-shrink:0;}
-    .badge{padding:2px 7px;border-radius:999px;font-family:'JetBrains Mono',monospace;font-weight:600;font-size:11px;display:inline-block;line-height:1.3;}
-    .badge-green{ color:var(--green); background:rgba(52,211,153,.1); border:1px solid rgba(52,211,153,.2);}
-    .badge-orange{color:var(--orange);background:rgba(251,146,60,.1); border:1px solid rgba(251,146,60,.2);}
-    .badge-red{   color:var(--red);   background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.2);}
-    .country-link{color:var(--accent);text-decoration:none;font-weight:600;}
-    .country-link:hover{opacity:.75;text-decoration:underline;}
+/* CONTACT */
+.con-grid{display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:start;}
+.con-cta{font-size:clamp(2rem,4vw,3.5rem);font-weight:800;letter-spacing:-.03em;line-height:1.1;color:var(--ink);margin-bottom:1.5rem;}
+.con-cta em{font-style:normal;color:var(--accent);}
+.con-body{font-size:.95rem;color:var(--muted);line-height:1.8;margin-bottom:2.5rem;}
+.conlinks{display:flex;flex-direction:column;gap:.5rem;}
+.clink{display:flex;align-items:center;gap:1rem;padding:1rem 1.2rem;background:var(--surface);border:1px solid var(--line);font-size:.85rem;color:var(--ink2);font-weight:500;transition:all .2s;}
+.clink:hover{background:var(--ink);color:#fff;border-color:var(--ink);}
+.clink:hover .cico{background:var(--accent);border-color:var(--accent);color:#fff;}
+.cico{width:32px;height:32px;background:rgba(14,122,95,.08);border:1px solid rgba(14,122,95,.2);display:flex;align-items:center;justify-content:center;color:var(--accent);font-size:.85rem;flex-shrink:0;transition:all .2s;}
 
-    /* GLOBE */
-    #globeWrap{
-      grid-row:2;grid-column:2;
-      border:1px solid var(--border);border-radius:12px;
-      position:relative;min-height:0;background:var(--bg);overflow:hidden;
-    }
-    #globe{position:absolute;inset:0;}
+/* GITHUB CARD */
+.gh-card{border:1px solid var(--line);background:var(--surface);overflow:hidden;}
+.gh-card-header{display:flex;align-items:center;gap:1rem;padding:1.2rem 1.4rem;border-bottom:1px solid var(--line);background:var(--bg2);}
+.gh-avatar{width:48px;height:48px;border-radius:50%;border:2px solid var(--line);}
+.gh-card-name{font-weight:700;font-size:.95rem;color:var(--ink);}
+.gh-card-user{font-family:var(--fm);font-size:.7rem;color:var(--muted);}
+.gh-card-body{padding:1.2rem 1.4rem;}
+.gh-card-bio{font-size:.85rem;color:var(--ink2);margin-bottom:1.2rem;line-height:1.6;}
+.gh-stats{display:flex;gap:1.5rem;margin-bottom:1.2rem;}
+.gh-stat{text-align:center;}
+.gh-stat-n{font-weight:800;font-size:1.1rem;color:var(--ink);display:block;}
+.gh-stat-l{font-family:var(--fm);font-size:.6rem;color:var(--muted);}
+.gh-link{display:flex;align-items:center;gap:.5rem;font-family:var(--fm);font-size:.72rem;color:var(--accent);font-weight:500;transition:color .2s;}
+.gh-link:hover{color:var(--accent2);}
 
-    /* TOOLTIP */
-    #tooltip{
-      position:fixed;z-index:1000;pointer-events:none;
-      background:rgba(6,13,26,.92);border:1px solid var(--border2);
-      border-radius:8px;padding:6px 10px;
-      font-size:12px;color:var(--text);
-      backdrop-filter:blur(8px);
-      opacity:0;transition:opacity .12s;
-      display:flex;align-items:center;gap:8px;
-      box-shadow:0 4px 16px rgba(0,0,0,.4);
-    }
-    #tooltip.show{opacity:1;}
-    #tooltip .t-flag{display:flex;align-items:center;}
-    #tooltip .t-name{font-weight:600;}
-    #tooltip .t-val{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);}
+/* TRAILHEAD WIDGET WRAPPER */
+.trailhead-wrap{
+  border:1px solid var(--line);
+  background:var(--surface);
+  padding:1.5rem;
+  margin-bottom:1.5rem;
+}
+.trailhead-wrap-label{
+  font-family:var(--fm);font-size:.65rem;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.1em;
+  margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;
+}
+.trailhead-wrap-label i{color:var(--accent);}
 
-    /* ── BOTTOM SHEET (mobile) ── */
-    #bottomSheet{
-      position:fixed;
-      bottom:0;left:0;right:0;
-      z-index:400;
-      height:72dvh;
-      transform:translateY(calc(100% - 52px));
-      transition:transform .32s cubic-bezier(.32,1,.4,1);
-      background:var(--panel);
-      border-radius:20px 20px 0 0;
-      border-top:1px solid var(--border2);
-      box-shadow:0 -4px 24px rgba(0,0,0,.4);
-      display:none;
-      flex-direction:column;
-      overflow:hidden;
-    }
-    #bottomSheet.open{
-      transform:translateY(0);
-      box-shadow:0 -8px 40px rgba(0,0,0,.6);
-    }
-    #sheetHandle{
-      height:52px;
-      min-height:52px;
-      flex-shrink:0;
-      padding:0 16px;
-      display:flex;align-items:center;justify-content:space-between;gap:10px;
-      cursor:pointer;
-    }
-    .handle-bar-wrap{
-      display:flex;flex-direction:column;align-items:center;gap:5px;flex-shrink:0;
-    }
-    .handle-bar{width:36px;height:4px;background:var(--border2);border-radius:4px;}
-    #sheetPeek{
-      flex:1;
-      font-size:13px;font-weight:600;color:var(--text2);
-      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-      text-align:center;
-      display:flex;align-items:center;justify-content:center;gap:8px;
-    }
-    #sheetCloseBtn{
-      background:rgba(255,255,255,.06);border:1px solid var(--border);
-      color:var(--text2);padding:4px 10px;border-radius:8px;
-      font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:600;
-      cursor:pointer;flex-shrink:0;
-    }
-    #sheetBody{
-      flex:1;min-height:0;
-      overflow-y:auto;
-      -webkit-overflow-scrolling:touch;
-      display:flex;flex-direction:column;
-    }
-    #sheetBody::-webkit-scrollbar{width:3px;}
-    #sheetBody::-webkit-scrollbar-thumb{background:var(--border2);}
-    #sheetCountryBar{
-      display:flex;align-items:center;gap:8px;
-      padding:8px 14px 10px;border-bottom:1px solid var(--border);flex-shrink:0;
-    }
-    #sheetCountryBar .s-flag{display:flex;align-items:center;}
-    #sheetCountryBar .s-name{font-size:15px;font-weight:700;color:var(--text);}
-    #sheetCountryBar .s-val{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent);}
-    #sheetStats{
-      display:grid;grid-template-columns:1fr 1fr;gap:6px;
-      padding:10px 14px;border-bottom:1px solid var(--border);flex-shrink:0;
-    }
-    #mobileSearchWrap{padding:8px 14px;border-bottom:1px solid var(--border);position:relative;flex-shrink:0;}
-    #searchInputMobile{
-      width:100%;background:var(--bg2);border:1px solid var(--border);
-      border-radius:8px;padding:7px 10px 7px 32px;
-      color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:13px;outline:none;
-      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%234d6a8a' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");
-      background-repeat:no-repeat;background-position:10px center;
-    }
-    #searchInputMobile::placeholder{color:var(--text3);}
-    #mobileSearchDrop{
-      position:absolute;left:14px;right:14px;top:100%;z-index:50;
-      background:var(--panel);border:1px solid var(--border2);
-      border-top:none;border-radius:0 0 10px 10px;
-      max-height:200px;overflow-y:auto;display:none;
-      box-shadow:0 8px 24px rgba(0,0,0,.5);
-    }
-    #sheetList{flex:1;overflow-y:auto;padding:6px;-webkit-overflow-scrolling:touch;}
-    #sheetList::-webkit-scrollbar{width:3px;}
-    #sheetList::-webkit-scrollbar-thumb{background:var(--border2);}
+/* MAP */
+.mapwrap{border:1px solid var(--line);overflow:hidden;height:220px;margin-top:1rem;}
+.mapwrap iframe{width:100%;height:100%;border:none;}
+.maplbl{font-family:var(--fm);font-size:.68rem;color:var(--muted);display:flex;align-items:center;gap:.5rem;margin-top:.6rem;}
+.maplbl i{color:var(--accent);}
 
-    /* RESPONSIVE */
-    @media(max-width:980px){
-      #sidebar{display:none!important;}
-      #bottomSheet{display:flex!important;}
-      #app{
-        grid-template-columns:1fr;
-        grid-template-rows:auto 1fr;
-        gap:6px;
-        padding-bottom:calc(52px + var(--safe-bottom));
-      }
-      #globeWrap{grid-row:2;grid-column:1;}
-      #statusPill,#btnDownload{display:none!important;}
-      header h1{font-size:15px;}
-    }
-    @media(max-width:520px){
-    }
-  </style>
+/* FOOTER */
+footer{border-top:1px solid var(--line);padding:2rem 5vw;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;background:var(--surface);}
+.fcopy{font-family:var(--fm);font-size:.7rem;color:var(--muted);}
+.fcopy strong{color:var(--ink);}
+.fsoc{display:flex;gap:1.2rem;}
+.fsoc a{font-size:1rem;color:var(--muted);transition:color .2s;}
+.fsoc a:hover{color:var(--accent);}
+
+/* WHATSAPP */
+.waf{position:fixed;bottom:2rem;right:2rem;z-index:200;width:50px;height:50px;background:#25D366;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.3rem;border-radius:50%;box-shadow:0 4px 16px rgba(37,211,102,.35);transition:transform .25s,box-shadow .25s;}
+.waf:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(37,211,102,.45);}
+
+/* RESPONSIVE */
+@media(max-width:960px){
+  #hero{grid-template-columns:1fr;padding-top:7rem;}
+  .about-grid{grid-template-columns:1fr;gap:3rem;}
+  .about-img{position:static;}
+  .ski-grid,.res-grid,.con-grid{grid-template-columns:1fr;gap:3rem;}
+  .ski-left{position:static;}
+  .svc-grid{grid-template-columns:1fr 1fr;}
+  .pgrid{grid-template-columns:1fr 1fr;}
+  .nlinks{display:none;}
+  .section{padding:5rem 5vw;}
+}
+@media(max-width:560px){
+  .svc-grid,.pgrid{grid-template-columns:1fr;}
+  .about-meta{grid-template-columns:1fr;}
+  .am{border-right:none;}
+  .hstats{gap:1.5rem;flex-wrap:wrap;}
+  footer{flex-direction:column;align-items:flex-start;}
+}
+</style>
 </head>
 <body>
-<div id="app">
-  <header>
-    <div class="hlogo">
-      <div class="hlogo-icon">🌍</div>
-      <h1>Map <span>3D</span></h1>
-    </div>
-    <div class="hcontrols">
-      <button class="btn" id="btnDownload">↓ JSON</button>
-      <span id="statusPill" class="loading">Cargando…</span>
-    </div>
-  </header>
 
-  <aside id="sidebar">
-    <div id="info" style="position:relative">
-      <div class="info-country">
-        <span class="info-flag" id="infoFlag">🌐</span>
-        <span class="info-name" id="selName">Selecciona un país</span>
-        <span class="info-iso" id="selISO" style="display:none"></span>
-      </div>
-      <div class="country-extra" id="countryExtra" style="display:none">
-        <span id="extraCapital"></span>
-        <span id="extraRegion"></span>
-        <span id="extraSubregion"></span>
-      </div>
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-label" id="labelTarget">Objetivo</div>
-          <div class="stat-val" id="selVal">—</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label" id="labelSum">Más parecido</div>
-          <div class="stat-val green" id="sumVal">—</div>
-        </div>
-        <div class="stat-card" style="grid-column:1/-1;">
-          <div class="stat-label" id="labelDiff">Similitud</div>
-          <div class="stat-val yellow" id="diffVal">—</div>
-        </div>
-      </div>
-      <div id="progressBar"></div>
-    </div>
-    <div id="legend">
-      <div class="legend-item"><span class="sw sel"></span>Seleccionado</div>
-      <div class="legend-item"><span class="sw base"></span>Otros</div>
-    </div>
-    <div id="weightsPanel" style="display:none">
-      <div class="weights-header" id="weightsToggle">
-        <span>⚖️ Pesos de similitud</span>
-        <span class="w-chevron">▼</span>
-      </div>
-      <div class="weights-body" id="weightsBody">
-        <div class="w-row">
-          <span class="w-label">Población</span>
-          <input type="range" class="w-slider" id="wPop" min="0" max="100" value="50">
-          <span class="w-pct" id="wPopPct">50%</span>
-        </div>
-        <div class="w-row">
-          <span class="w-label">PIB total</span>
-          <input type="range" class="w-slider" id="wGdp" min="0" max="100" value="30">
-          <span class="w-pct" id="wGdpPct">30%</span>
-        </div>
-        <div class="w-row">
-          <span class="w-label">PIB per cáp.</span>
-          <input type="range" class="w-slider" id="wGdpPc" min="0" max="100" value="20">
-          <span class="w-pct" id="wGdpPcPct">20%</span>
-        </div>
-        <div class="weights-note" id="weightsNote">Total: 100%</div>
-      </div>
-    </div>
-    <div class="search-wrap">
-      <input id="searchInput" type="search" placeholder="Buscar país… (ej: Colombia)" autocomplete="off">
-      <div id="searchDrop"></div>
-    </div>
-    <div id="countriesList">
-      <div class="empty-state">
-        <div class="empty-icon">👆</div>
-        Haz clic en cualquier país<br>del globo para comenzar
-      </div>
-    </div>
-  </aside>
+<!-- NAV -->
+<nav id="mnav">
+  <a href="#hero" class="nlogo">Dev<em>YHB</em></a>
+  <ul class="nlinks">
+    <li><a href="#about">Sobre mí</a></li>
+    <li><a href="#resume">Trayectoria</a></li>
+    <li><a href="#portfolio">Portafolio</a></li>
+    <li><a href="#services">Servicios</a></li>
+    <li><a href="#contact" class="ncta">Contacto</a></li>
+  </ul>
+</nav>
 
-  <div id="globeWrap"><div id="globe"></div></div>
-</div>
-
-<!-- TOOLTIP -->
-<div id="tooltip">
-  <span class="t-flag" id="ttFlag"></span>
-  <div>
-    <div class="t-name" id="ttName"></div>
-    <div class="t-val" id="ttVal"></div>
-  </div>
-</div>
-
-<!-- BOTTOM SHEET -->
-<div id="bottomSheet" role="dialog" aria-modal="true">
-  <div id="sheetHandle">
-    <div class="handle-bar-wrap">
-      <div class="handle-bar"></div>
+<!-- HERO — sin foto (aparece en Sobre mí) -->
+<div id="hero">
+  <div class="hero-left">
+    <div class="hero-tag">Disponible para proyectos freelance</div>
+    <h1 class="hname">Yared<br><em>Henriquez</em></h1>
+    <p class="hrole">
+      <span>Ing. Sistemas</span>
+      <span class="hrole-sep">·</span>
+      <span>Full-Stack Dev</span>
+      <span class="hrole-sep">·</span>
+      <span>Salesforce</span>
+      <span class="hrole-sep">·</span>
+      Cartagena, CO
+    </p>
+    <div class="hbtns">
+      <a href="#portfolio" class="btn-solid"><i class="bi bi-grid-3x3-gap-fill"></i> Portafolio</a>
+      <a href="#contact" class="btn-line"><i class="bi bi-send-fill"></i> Contacto</a>
     </div>
-    <span id="sheetPeek">Toca un país en el globo</span>
-    <button id="sheetCloseBtn" style="display:none">✕</button>
-  </div>
-  <div id="sheetBody">
-    <div id="sheetCountryBar" style="display:none">
-      <span class="s-flag" id="sheetFlag"></span>
-      <span class="s-name" id="sheetName"></span>
-      <span class="s-val" id="sheetVal"></span>
-    </div>
-    <div id="sheetStats" style="display:none">
-      <div class="stat-card">
-        <div class="stat-label" id="sheetLabelSum">Más parecido</div>
-        <div class="stat-val green" id="sheetSumVal">—</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label" id="sheetLabelDiff">Diferencia</div>
-        <div class="stat-val yellow" id="sheetDiffVal">—</div>
-      </div>
-    </div>
-    <div id="mobileSearchWrap">
-      <input id="searchInputMobile" type="search" placeholder="Buscar país…" autocomplete="off">
-      <div id="mobileSearchDrop"></div>
-    </div>
-    <div id="sheetList"></div>
-  </div>
-</div>
-
-<!-- GEMELO MODAL -->
-<div id="gModal">
-  <div id="gModalBackdrop"></div>
-  <div id="gModalBox">
-    <div id="gModalHeader">
-      <div class="gm-flags" id="gmFlags"></div>
-      <div class="gm-title" id="gmTitle"></div>
-      <div class="gm-subtitle" id="gmSubtitle"></div>
-      <button id="gModalClose">✕</button>
-    </div>
-    <div id="gModalBody">
-      <div class="gm-frase" id="gmFrase"></div>
-      <div class="gm-section" id="gmInfoSection" style="display:none">
-        <div class="gm-section-title">📍 Información básica</div>
-        <div class="gm-info-grid" id="gmInfoGrid"></div>
-      </div>
-      <div class="gm-section">
-        <div class="gm-section-title">📊 Métricas comparadas</div>
-        <div class="gm-metrics" id="gmMetrics"></div>
-      </div>
-      <div class="gm-alert" id="gmAlert" style="display:none"></div>
-      </div>
-      <button class="gm-btn" id="gmSelectBtn"></button>
+    <div class="hstats">
+      <div><div class="hstat-n">5+</div><div class="hstat-l">años en Python</div></div>
+      <div><div class="hstat-n">4</div><div class="hstat-l">años liderando TI</div></div>
+      <div><div class="hstat-n">Ranger</div><div class="hstat-l">Salesforce Trailhead</div></div>
     </div>
   </div>
 </div>
 
-<script>
-/* CONFIG */
-const CACHE_POP_KEY  = 'map3d_pop_v4';
-const CACHE_ECON_KEY = 'map3d_econ_v2';
-const CACHE_TTL_MS   = 7*24*60*60*1000;
-let WEIGHTS = {pop:.5,gdp:.3,gdp_pc:.2};
+<div class="sdivider"></div>
 
-/* UTIL */
-const $ = id => document.getElementById(id);
-const fmt    = new Intl.NumberFormat('es-CO');
-const fmtUSD = new Intl.NumberFormat('es-CO',{style:'currency',currency:'USD',maximumFractionDigits:0});
-function formatVal(m,v){ if(v==null||!isFinite(v)) return '—'; return m==='pop'?fmt.format(v):fmtUSD.format(v); }
-function getVal(c,m){ return m==='gdp'?(c.gdp??null):m==='gdp_pc'?(c.gdp_pc??null):(c.pop??null); }
-function metricLabel(m){ return m==='gdp'?'PIB (USD)':m==='gdp_pc'?'PIB per cápita':'Población'; }
-function badgeClass(s){ if(!isFinite(s))return'badge-red'; if(s<.15)return'badge-green'; if(s<.5)return'badge-orange'; return'badge-red'; }
-function setStatus(msg,type=''){ const el=$('statusPill'); el.textContent=msg; el.className=type||''; }
-function setProgress(r){ $('progressBar').style.transform=`scaleX(${Math.min(r,1)})`; }
-
-function setVH(){
-  const h=window.visualViewport?.height??window.innerHeight;
-  document.documentElement.style.setProperty('--vh',`${h/100}px`);
-}
-setVH();
-window.addEventListener('resize',setVH);
-window.addEventListener('orientationchange',setVH);
-
-const isoFlags = new Map();
-
-/* ─── FLAG IMAGE (usa flagcdn.com — imágenes reales, sin depender de emojis) ─── */
-function flagImg(iso3, size='sm'){
-  const cca2 = isoFlags.get(iso3);
-  if(!cca2 || cca2.length !== 2){
-    return '<span style="font-size:16px;line-height:1">🌐</span>';
-  }
-  // tamaños disponibles en flagcdn: 20, 40, 80, 160, 320, 640
-  const sizeMap = {sm:20, md:20, lg:40, xl:40};
-  const w = sizeMap[size] || 20;
-  const cc = cca2.toLowerCase();
-  return `<img
-    src="https://flagcdn.com/w${w}/${cc}.png"
-    srcset="https://flagcdn.com/w${w*2}/${cc}.png 2x"
-    class="flag-img flag-img-${size}"
-    alt="${cc.toUpperCase()}"
-    loading="lazy"
-    onerror="this.style.display='none'"
-  >`;
-}
-
-function cacheGet(k){ try{const r=localStorage.getItem(k);if(!r)return null;const{ts,data}=JSON.parse(r);if(Date.now()-ts>CACHE_TTL_MS){localStorage.removeItem(k);return null;}return data;}catch{return null;} }
-function cacheSet(k,d){ try{localStorage.setItem(k,JSON.stringify({ts:Date.now(),data:d}));}catch{} }
-
-/* STATE */
-let globe, features=[], allCountries=[];
-let countryByIso=new Map(), featureByIso=new Map(), centroidCache=new Map();
-let selectedISO3=null, nearestISO3=null;
-
-const similarISO3Set=new Set();
-
-let mouseX=0, mouseY=0;
-document.addEventListener('mousemove',e=>{mouseX=e.clientX;mouseY=e.clientY;});
-
-/* DATA */
-async function loadGeo(){
-  const geo=await fetch('https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson',{mode:'cors'}).then(r=>r.json());
-  for(const f of geo.features){
-    const p=f.properties||{};
-    p.name=p.name||p.ADMIN||p.NAME||p.name_long||p.sovereignt||'País';
-    p.iso3=String(p.ISO_A3||p.ADM0_A3||p.iso_a3||f.id||'').toUpperCase().replace(/[^A-Z]/g,'');
-  }
-  return geo.features;
-}
-async function loadPopulation(){
-  const cached=cacheGet(CACHE_POP_KEY);
-  if(cached){allCountries=cached;for(const c of allCountries){if(c.cca2)isoFlags.set(c.iso3,c.cca2);}return'cache';}
-  const data=await fetch('https://restcountries.com/v3.1/all?fields=name,cca3,cca2,population,independent,capital,latlng,region,subregion').then(r=>r.json());
-  allCountries=data
-    .filter(d=>d?.name?.common&&Number.isFinite(d.population)&&d.independent===true)
-    .map(d=>{
-      const iso3=String(d.cca3).toUpperCase();
-      if(d.cca2)isoFlags.set(iso3,d.cca2);
-      return{
-        iso3,
-        name:d.name.common,
-        pop:d.population,
-        cca2:d.cca2||'',
-        capital:d.capital?.[0]||null,
-        lat:d.latlng?.[0]??null,
-        lng:d.latlng?.[1]??null,
-        region:d.region||null,
-        subregion:d.subregion||null,
-      };
-    });
-  cacheSet(CACHE_POP_KEY,allCountries);
-  return'api';
-}
-async function loadWBIndicator(ind){
-  const json=await fetch(`https://api.worldbank.org/v2/country/all/indicator/${ind}?format=json&per_page=20000`).then(r=>r.json());
-  const map=new Map();
-  for(const row of json?.[1]||[]){
-    const iso3=row?.countryiso3code?.toUpperCase?.();
-    const val=row?.value, year=Number(row?.date);
-    if(!iso3||val==null)continue;
-    const prev=map.get(iso3);
-    if(!prev||year>prev.year)map.set(iso3,{year,value:Number(val)});
-  }
-  return map;
-}
-async function loadEconomics(){
-  const cached=cacheGet(CACHE_ECON_KEY);
-  if(cached){
-    const byIso=new Map(allCountries.map(c=>[c.iso3,c]));
-    for(const{iso3,gdp,gdp_pc}of cached){const c=byIso.get(iso3);if(c){c.gdp=gdp;c.gdp_pc=gdp_pc;}}
-    return;
-  }
-  setStatus('Cargando PIB…','loading');
-  const[gdpMap,gdpPcMap]=await Promise.all([loadWBIndicator('NY.GDP.MKTP.CD'),loadWBIndicator('NY.GDP.PCAP.CD')]);
-  const byIso=new Map(allCountries.map(c=>[c.iso3,c]));
-  for(const[iso3,rec]of gdpMap){const c=byIso.get(iso3);if(c)c.gdp=rec.value;}
-  for(const[iso3,rec]of gdpPcMap){const c=byIso.get(iso3);if(c)c.gdp_pc=rec.value;}
-  allCountries=Array.from(byIso.values());
-  cacheSet(CACHE_ECON_KEY,allCountries.map(({iso3,gdp,gdp_pc})=>({iso3,gdp,gdp_pc})));
-}
-
-
-/* WEIGHTS */
-function updateWeightsUI(){
-  const total=WEIGHTS.pop+WEIGHTS.gdp+WEIGHTS.gdp_pc;
-  const pct=w=>Math.round((w/total)*100);
-  $('wPopPct').textContent =pct(WEIGHTS.pop)+'%';
-  $('wGdpPct').textContent =pct(WEIGHTS.gdp)+'%';
-  $('wGdpPcPct').textContent=pct(WEIGHTS.gdp_pc)+'%';
-  const t=pct(WEIGHTS.pop)+pct(WEIGHTS.gdp)+pct(WEIGHTS.gdp_pc);
-  $('weightsNote').textContent=`Total efectivo: ${t}%`;
-  if(selectedISO3){
-    const f=featureByIso.get(selectedISO3);
-    if(f) onPickCountry(f);
-  }
-}
-
-/* ALGORITHMS */
-const relErr=(a,b)=>(isFinite(a)&&isFinite(b)&&Math.max(a,b)>0)?Math.abs(a-b)/Math.max(a,b):Infinity;
-
-
-
-function findNearestByMetric(base,metric){
-  const a=getVal(base,metric);if(a==null)return null;
-  let best=null,bestErr=Infinity;
-  for(const c of allCountries){
-    if(c.iso3===base.iso3)continue;
-    const b=getVal(c,metric);if(b==null||!isFinite(b))continue;
-    const e=relErr(a,b);if(e<bestErr){best=c;bestErr=e;}
-  }
-  return best?{country:best,err:bestErr}:null;
-}
-function combinedScore(base,cand){
-  const parts=[];let wUsed=0;
-  if(base.pop!=null&&cand.pop!=null){parts.push(WEIGHTS.pop*relErr(base.pop,cand.pop));wUsed+=WEIGHTS.pop;}
-  if(base.gdp!=null&&cand.gdp!=null){parts.push(WEIGHTS.gdp*relErr(base.gdp,cand.gdp));wUsed+=WEIGHTS.gdp;}
-  if(base.gdp_pc!=null&&cand.gdp_pc!=null){parts.push(WEIGHTS.gdp_pc*relErr(base.gdp_pc,cand.gdp_pc));wUsed+=WEIGHTS.gdp_pc;}
-  if(!parts.length)return Infinity;
-  return parts.reduce((a,b)=>a+b,0)/(wUsed||1);
-}
-function findNearestCombined(base){
-  let best=null,bestScore=Infinity;
-  for(const cand of allCountries){
-    if(cand.iso3===base.iso3)continue;
-    const s=combinedScore(base,cand);
-    if(s<bestScore){best=cand;bestScore=s;}
-  }
-  return best?{country:best,score:bestScore}:null;
-}
-function topKCombined(base,k){
-  return allCountries
-    .filter(c=>c.iso3!==base.iso3)
-    .map(c=>({country:c,score:combinedScore(base,c)}))
-    .filter(x=>isFinite(x.score))
-    .sort((a,b)=>a.score-b.score)
-    .slice(0,k);
-}
-
-function barColor(p){ return p>=75?'var(--green)':p>=50?'var(--yellow)':'var(--orange)'; }
-
-function buildInfoGrid(base, twin){
-  const el=$('gmInfoSection');
-  if(!base.capital&&!base.region&&!twin.capital&&!twin.region){ el.style.display='none'; return; }
-  el.style.display='block';
-  const rows=[];
-  if(base.capital||twin.capital) rows.push({label:'Capital', bv:base.capital||'—', tv:twin.capital||'—'});
-  if(base.region||twin.region){
-    const same=base.region&&twin.region&&base.region===twin.region;
-    rows.push({label:'Región', bv:base.region||'—', tv:twin.region||'—', same});
-  }
-  if(base.subregion||twin.subregion){
-    const same=base.subregion&&twin.subregion&&base.subregion===twin.subregion;
-    rows.push({label:'Subregión', bv:base.subregion||'—', tv:twin.subregion||'—', same});
-  }
-  $('gmInfoGrid').innerHTML = rows.map(r=>{
-    const cls = r.same===true ? 'same' : r.same===false ? 'diff' : '';
-    return `
-      <div class="gm-info-col left"><span class="gm-info-chip ${cls}" title="${r.bv}">${r.bv}</span></div>
-      <div class="gm-info-divider">
-        <span style="font-size:9px;color:var(--text3)">${r.label}</span>
-        <span style="font-size:10px;color:var(--text3)">${r.same===true?'✓ igual':'↔'}</span>
+<!-- ABOUT -->
+<section class="section" id="about">
+  <div class="sec-label reveal"><span class="sec-label-tag">01 — Sobre mí</span><div class="sec-label-line"></div></div>
+  <div class="about-grid">
+    <div class="about-img reveal">
+      <img src="https://yared17.github.io/Responsive-PortfolioYHB/assets/img/profile-img.jpg" alt="Yared Henriquez" onerror="this.style.display='none'">
+      <div class="about-img-cap"><i class="bi bi-geo-alt-fill"></i> Cartagena de Indias, Colombia</div>
+    </div>
+    <div>
+      <h2 class="stit reveal">Ingeniero de Sistemas<br><em>orientado a soluciones</em></h2>
+      <div class="about-text">
+        <p class="reveal d1">Ingeniero en Sistemas con sólida experiencia en <strong>arquitectura de software, automatización de procesos y despliegue de aplicaciones</strong>. Me especializo en conectar infraestructura tecnológica con necesidades reales de negocio — desde sistemas de monitoreo en tiempo real hasta pipelines de datos e integraciones empresariales.</p>
+        <p class="reveal d2">Como <strong>Director de Tecnología en EXIA S.A.S</strong> lideré la infraestructura digital de una empresa de energía solar: integración de sensores, dashboards de supervisión y automatización de reportes operativos. Hoy trabajo como <strong>freelance</strong> desarrollando soluciones con Python, Salesforce y tecnologías web, mientras profundizo en <strong>Inteligencia Artificial</strong> con Máster en la Universitat de Barcelona.</p>
       </div>
-      <div class="gm-info-col right"><span class="gm-info-chip ${cls}" title="${r.tv}">${r.tv}</span></div>`;
-  }).join('');
-}
+      <div class="about-meta reveal d3">
+        <div class="am"><div class="am-k">Email</div><div class="am-v"><a href="mailto:yared.henriquezhb@gmail.com">yared.henriquezhb@gmail.com</a></div></div>
+        <div class="am"><div class="am-k">Disponibilidad</div><div class="am-v av"><i class="bi bi-circle-fill" style="font-size:.5rem;vertical-align:middle"></i> Disponible</div></div>
+        <div class="am"><div class="am-k">Ciudad</div><div class="am-v">Cartagena, Colombia</div></div>
+        <div class="am"><div class="am-k">Formación</div><div class="am-v">Ingeniería + Máster IA</div></div>
+      </div>
+    </div>
+  </div>
+</section>
 
-function buildFrase(base, twin, metrics){
-  const available = metrics.filter(m=>m.sim!=null);
-  if(!available.length) return `<em>${twin.name}</em> es el país más parecido a <em>${base.name}</em> según los datos disponibles.`;
-  const high=available.filter(m=>m.sim>=75), mid=available.filter(m=>m.sim>=50&&m.sim<75), low=available.filter(m=>m.sim<50);
-  let parts=[];
-  if(high.length) parts.push(`coinciden fuertemente en ${high.map(m=>m.label.toLowerCase()).join(' y ')}`);
-  if(mid.length)  parts.push(`tienen cierta cercanía en ${mid.map(m=>m.label.toLowerCase()).join(' y ')}`);
-  if(low.length)  parts.push(`difieren notablemente en ${low.map(m=>m.label.toLowerCase()).join(' y ')}`);
-  const intro = high.length===available.length
-    ? `<em>${base.name}</em> y <em>${twin.name}</em> son estructuralmente muy parecidos`
-    : low.length===available.length
-      ? `<em>${base.name}</em> y <em>${twin.name}</em> no se parecen mucho en ninguna métrica individual, pero son los más cercanos en el balance combinado`
-      : `<em>${base.name}</em> y <em>${twin.name}</em>`;
-  return `${intro}: ${parts.join(', ')}.`;
-}
+<div class="sdivider"></div>
 
-function openGemeloModal(base, twin, nComb, nPop){
-  const sim = Math.max(0,(1-nComb.score)*100);
-  const metrics=[
-    { label:'Población',    baseVal:base.pop,    twinVal:twin.pop,    sim:(base.pop&&twin.pop)?Math.max(0,(1-relErr(base.pop,twin.pop))*100):null,    fmt:v=>fmt.format(v)+' hab.' },
-    { label:'PIB total',    baseVal:base.gdp,    twinVal:twin.gdp,    sim:(base.gdp&&twin.gdp)?Math.max(0,(1-relErr(base.gdp,twin.gdp))*100):null,    fmt:v=>fmtUSD.format(v) },
-    { label:'PIB per cáp.', baseVal:base.gdp_pc, twinVal:twin.gdp_pc, sim:(base.gdp_pc&&twin.gdp_pc)?Math.max(0,(1-relErr(base.gdp_pc,twin.gdp_pc))*100):null, fmt:v=>fmtUSD.format(v) },
-  ];
-  $('gmFlags').innerHTML = flagImg(base.iso3,'xl')+`<span style="font-size:18px;font-weight:700;color:var(--text3);margin:0 4px">vs</span>`+flagImg(twin.iso3,'xl');
-  $('gmTitle').textContent    = `${base.name} & ${twin.name}`;
-  $('gmSubtitle').textContent = `${sim.toFixed(1)}% de similitud estructural`;
-  buildInfoGrid(base, twin);
-  $('gmFrase').innerHTML = buildFrase(base, twin, metrics);
-  $('gmMetrics').innerHTML = metrics.map(m=>{
-    if(m.sim==null) return `<div class="gm-metric-row"><span class="gm-label">${m.label}</span><span style="font-size:11px;color:var(--text3);flex:1;text-align:center">Sin datos</span></div>`;
-    const bv=m.baseVal?m.fmt(m.baseVal):'—', tv=m.twinVal?m.fmt(m.twinVal):'—', bc=barColor(m.sim);
-    return `
-      <div style="margin-bottom:10px">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-          <span class="gm-label" style="width:auto">${m.label}</span>
-          <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:${bc}">${m.sim.toFixed(0)}% similar</span>
+<!-- SKILLS -->
+<section class="section" id="skills">
+  <div class="sec-label reveal"><span class="sec-label-tag">02 — Habilidades</span><div class="sec-label-line"></div></div>
+  <div class="ski-grid">
+    <div class="ski-left">
+      <h2 class="stit reveal">Stack<br><em>técnico</em></h2>
+      <p class="reveal d1">Tecnologías aplicadas en proyectos reales: desde interfaces hasta automatización backend e integraciones empresariales.</p>
+    </div>
+    <div class="skigroups reveal d1">
+      <div>
+        <div class="skig-title">Frontend</div>
+        <div class="skitags">
+          <span class="skitag"><i class="devicon-html5-plain" style="color:#e34f26"></i> HTML5</span>
+          <span class="skitag"><i class="devicon-css3-plain" style="color:#1572b6"></i> CSS3</span>
+          <span class="skitag"><i class="devicon-bootstrap-plain" style="color:#7952b3"></i> Bootstrap</span>
+          <span class="skitag"><i class="devicon-javascript-plain" style="color:#f7df1e"></i> JavaScript</span>
         </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:5px">
-          <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);flex:1;text-align:left">${bv}</span>
-          <span style="font-size:10px;color:var(--text3)">↔</span>
-          <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);flex:1;text-align:right">${tv}</span>
+      </div>
+      <div>
+        <div class="skig-title">Backend & Automatización</div>
+        <div class="skitags">
+          <span class="skitag"><i class="devicon-python-plain" style="color:#3776ab"></i> Python</span>
+          <span class="skitag"><i class="devicon-flask-original"></i> Flask</span>
+          <span class="skitag"><i class="devicon-django-plain" style="color:#44b78b"></i> Django</span>
+          <span class="skitag"><i class="devicon-mysql-plain" style="color:#4479a1"></i> MySQL</span>
         </div>
-        <div class="gm-bar-wrap"><div class="gm-bar" style="width:${m.sim.toFixed(1)}%;background:${bc}"></div></div>
-      </div>`;
-  }).join('');
-  const alertMsg=detectStructuralAlert(base,twin), alertEl=$('gmAlert');
-  if(alertMsg){alertEl.textContent='⚠️ '+alertMsg;alertEl.style.display='block';}else alertEl.style.display='none';
-  const btn=$('gmSelectBtn');
-  btn.textContent=`Explorar ${twin.name} →`;
-  btn.onclick=()=>{ closeGemeloModal(); const f=featureByIso.get(twin.iso3); if(f) onPickCountry(f); };
-  $('gModal').classList.add('show');
-  $('tooltip').classList.remove('show'); $('tooltip').style.visibility='hidden';
-}
+      </div>
+      <div>
+        <div class="skig-title">Plataformas & Herramientas</div>
+        <div class="skitags">
+          <span class="skitag"><i class="devicon-salesforce-plain" style="color:#00a1e0"></i> Salesforce</span>
+          <span class="skitag"><i class="devicon-git-plain" style="color:#f05032"></i> Git</span>
+          <span class="skitag"><i class="devicon-github-original"></i> GitHub</span>
+          <span class="skitag"><i class="devicon-vscode-plain" style="color:#007acc"></i> VS Code</span>
+        </div>
+      </div>
+      <div>
+        <div class="skig-title">Otras áreas</div>
+        <div class="skitags">
+          <span class="skitag"><i class="bi bi-vector-pen" style="color:var(--accent)"></i> UI/UX</span>
+          <span class="skitag"><i class="bx bxs-sun" style="color:#f59e0b"></i> Energía Solar</span>
+          <span class="skitag"><i class="bi bi-kanban-fill" style="color:var(--accent)"></i> Scrum / Agile</span>
+          <span class="skitag"><i class="bi bi-cpu-fill" style="color:var(--accent)"></i> Inteligencia Artificial</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
-function closeGemeloModal(){ $('gModal').classList.remove('show'); $('tooltip').style.visibility=''; }
+<div class="sdivider"></div>
 
-function detectStructuralAlert(base, twin){
-  if(!base.gdp||!twin.gdp||!base.gdp_pc||!twin.gdp_pc) return null;
-  const gdpSim  = 1-relErr(base.gdp,twin.gdp);
-  const gdppcSim= 1-relErr(base.gdp_pc,twin.gdp_pc);
-  if(gdpSim>0.7 && gdppcSim<0.6){
-    const ratio=base.gdp_pc>twin.gdp_pc
-      ? `${base.name} tiene ${(base.gdp_pc/twin.gdp_pc).toFixed(1)}× más PIB per cápita`
-      : `${twin.name} tiene ${(twin.gdp_pc/base.gdp_pc).toFixed(1)}× más PIB per cápita`;
-    return `PIB total similar, pero estructura muy diferente — ${ratio}. Indica diferencia en tamaño de población o productividad.`;
-  }
-  return null;
-}
+<!-- RESUME -->
+<section class="section" id="resume">
+  <div class="sec-label reveal"><span class="sec-label-tag">03 — Trayectoria</span><div class="sec-label-line"></div></div>
+  <h2 class="stit reveal">Recorrido<br><em>académico & profesional</em></h2>
+  <p class="stit-sub reveal d1">Más de 5 años construyendo soluciones en múltiples industrias.</p>
+  <div class="res-grid">
+    <div class="reveal">
+      <div class="res-col-title"><i class="bi bi-book-half"></i> Educación</div>
+      <div class="tl">
+        <div class="tli"><div class="tly">2023<br>Presente</div><div class="tldo"></div><div><div class="tltit">Máster en Inteligencia Artificial</div><div class="tlorg">Universitat de Barcelona</div><div class="tldesc">ML, NLP, robótica y sistemas inteligentes. Impartido en inglés. En espera de grado.</div></div></div>
+        <div class="tli"><div class="tly">2017<br>2021</div><div class="tldo"></div><div><div class="tltit">Ingeniería en Sistemas & Computación</div><div class="tlorg">Universidad Tecnológica de Bolívar</div><div class="tldesc">Diseño de ingeniería, desarrollo de software y sistemas complejos.</div></div></div>
+        <div class="tli"><div class="tly">2013<br>2017</div><div class="tldo"></div><div><div class="tltit">Tecnología en Sistemas & Computación</div><div class="tlorg">Universidad Tecnológica de Bolívar</div><div class="tldesc">Desarrollo web, móvil y administración de sistemas de información.</div></div></div>
+      </div>
+    </div>
+    <div class="reveal d2">
+      <div class="res-col-title"><i class="bi bi-briefcase-fill"></i> Experiencia</div>
+      <div class="tl">
+        <div class="tli"><div class="tly">2022<br>2025</div><div class="tldo"></div><div><div class="tltit">Director de Tecnología</div><div class="tlorg">EXIA S.A.S — Cartagena, CO</div><div class="tldesc">Integración tecnológica en proyectos solares, automatización y dashboards de monitoreo.</div></div></div>
+        <div class="tli"><div class="tly">2021<br>2024</div><div class="tldo"></div><div><div class="tltit">Developer Semi Senior (Tester)</div><div class="tlorg">Google</div><div class="tldesc">Pruebas funcionales y automatizadas de apps web y móviles en equipos ágiles.</div></div></div>
+        <div class="tli"><div class="tly">2020<br>Hoy</div><div class="tldo"></div><div><div class="tltit">Freelance · Salesforce & Dev</div><div class="tlorg">Cartagena, CO</div><div class="tldesc">Desarrollo web, automatización e integraciones Salesforce para clientes locales e internacionales.</div></div></div>
+        <div class="tli"><div class="tly">2015<br>2016</div><div class="tldo"></div><div><div class="tltit">Auxiliar Administrativo · Investigación</div><div class="tlorg">Cartagena, CO</div><div class="tldesc">Capacitación TI, digitalización y soporte en proyecto CIER NORTE.</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
 
-/* GLOBE COLORS */
-const capColor=f=>{const iso=(f.properties?.iso3||'').toUpperCase();if(iso&&iso===selectedISO3)return'#34d399';if(iso===nearestISO3)return'#fbbf24';if(similarISO3Set.has(iso))return'rgba(251,191,36,.55)';return'rgba(74,90,120,0.55)';};
-const sideColor=f=>{const iso=(f.properties?.iso3||'').toUpperCase();if(iso===selectedISO3)return'rgba(52,211,153,.4)';if(iso===nearestISO3||similarISO3Set.has(iso))return'rgba(251,191,36,.3)';return'rgba(30,50,80,.7)';};
-const altitude=f=>{const iso=(f.properties?.iso3||'').toUpperCase();if(iso===selectedISO3)return.028;if(iso===nearestISO3)return.022;if(similarISO3Set.has(iso))return.012;return.003;};
-function refreshPolygons(){globe.polygonCapColor(capColor).polygonSideColor(sideColor).polygonAltitude(altitude).polygonsTransitionDuration(0).polygonsData([...features]);}
+<div class="sdivider"></div>
 
-/* CENTROID */
-function centroidOf(f){
-  const key=f.properties?.iso3||'';if(centroidCache.has(key))return centroidCache.get(key);
-  const g=f.geometry,rings=g.type==='Polygon'?[g.coordinates]:g.coordinates;
-  let sl=0,sg=0,n=0;rings.forEach(poly=>poly[0].forEach(([lng,lat])=>{sl+=lat;sg+=lng;n++;}));
-  const c={lat:sl/n,lng:sg/n};centroidCache.set(key,c);return c;
-}
+<!-- PORTFOLIO -->
+<section class="section" id="portfolio">
+  <div class="sec-label reveal"><span class="sec-label-tag">04 — Portafolio</span><div class="sec-label-line"></div></div>
+  <h2 class="stit reveal">Certificaciones<br><em>&amp; Tecnologías</em></h2>
+  <p class="stit-sub reveal d1">Constante aprendizaje y aplicación práctica.</p>
+  <div class="pfilt reveal">
+    <button class="pfbtn active" data-f="all">Todo</button>
+    <button class="pfbtn" data-f="cert">Certificaciones</button>
+    <button class="pfbtn" data-f="tech">Tecnologías</button>
+  </div>
+  <div class="pgrid reveal" id="cgrid">
+    <div class="pitem"><img src="https://yared17.github.io/Responsive-PortfolioYHB/assets/img/portfolio/portfolio-1.jpg" alt="Responsive Web Design"><div class="pov"><div class="pov-tag">Certificación</div><div class="pov-tit">Responsive Web Design</div></div></div>
+    <div class="pitem"><img src="https://yared17.github.io/Responsive-PortfolioYHB/assets/img/portfolio/portfolio-2.jpg" alt="Cloud Computing"><div class="pov"><div class="pov-tag">Certificación</div><div class="pov-tit">Cloud Computing</div></div></div>
+    <div class="pitem"><img src="https://yared17.github.io/Responsive-PortfolioYHB/assets/img/portfolio/portfolio-3.jpg" alt="JavaScript"><div class="pov"><div class="pov-tag">Certificación</div><div class="pov-tit">JavaScript</div></div></div>
+    <div class="pitem"><img src="https://yared17.github.io/Responsive-PortfolioYHB/assets/img/portfolio/portfolio-4.jpg" alt="Marketing Digital"><div class="pov"><div class="pov-tag">Certificación</div><div class="pov-tit">Marketing Digital</div></div></div>
+    <div class="pitem"><img src="https://yared17.github.io/Responsive-PortfolioYHB/assets/img/portfolio/portfolio-5.jpg" alt="Scrum Foundation Professional Certificate"><div class="pov"><div class="pov-tag">Certificación</div><div class="pov-tit">Scrum Foundation Professional</div></div></div>
+    <div class="pitem"><img src="https://yared17.github.io/Responsive-PortfolioYHB/assets/img/portfolio/portfolio-6.jpg" alt="HTML"><div class="pov"><div class="pov-tag">Certificación</div><div class="pov-tit">HTML</div></div></div>
+    <div class="pitem"><img src="https://yared17.github.io/Responsive-PortfolioYHB/assets/img/portfolio/portfolio-7.jpg" alt="Ciberseguridad Educativa"><div class="pov"><div class="pov-tag">Certificación</div><div class="pov-tit">Ciberseguridad Educativa</div></div></div>
+    <div class="pitem"><img src="https://yared17.github.io/Responsive-PortfolioYHB/assets/img/portfolio/portfolio-8.jpg" alt="Programación con JavaScript"><div class="pov"><div class="pov-tag">Certificación</div><div class="pov-tit">Programación con JavaScript</div></div></div>
+    <div class="pitem"><img src="https://yared17.github.io/Responsive-PortfolioYHB/assets/img/portfolio/portfolio-9.jpg" alt="Logo"><div class="pov"><div class="pov-tag">Diseño</div><div class="pov-tit">Logo</div></div></div>
+  </div>
+  <div class="tgrid" id="tgrid">
+    <div class="tcell"><i class="devicon-python-plain" style="color:#3776ab"></i><span>Python</span></div>
+    <div class="tcell"><i class="devicon-javascript-plain" style="color:#f7df1e"></i><span>JavaScript</span></div>
+    <div class="tcell"><i class="devicon-html5-plain" style="color:#e34f26"></i><span>HTML5</span></div>
+    <div class="tcell"><i class="devicon-css3-plain" style="color:#1572b6"></i><span>CSS3</span></div>
+    <div class="tcell"><i class="devicon-bootstrap-plain" style="color:#7952b3"></i><span>Bootstrap</span></div>
+    <div class="tcell"><i class="devicon-flask-original"></i><span>Flask</span></div>
+    <div class="tcell"><i class="devicon-django-plain" style="color:#44b78b"></i><span>Django</span></div>
+    <div class="tcell"><i class="devicon-git-plain" style="color:#f05032"></i><span>Git</span></div>
+    <div class="tcell"><i class="devicon-github-original"></i><span>GitHub</span></div>
+    <div class="tcell"><i class="devicon-salesforce-plain" style="color:#00a1e0"></i><span>Salesforce</span></div>
+    <div class="tcell"><i class="devicon-mysql-plain" style="color:#4479a1"></i><span>MySQL</span></div>
+    <div class="tcell"><i class="devicon-vscode-plain" style="color:#007acc"></i><span>VS Code</span></div>
+  </div>
+</section>
 
-/* TOOLTIP */
-const tooltip=$('tooltip');let tooltipTO;
-function showTooltip(f,x,y){
-  if(sheetOpen) return;
-  clearTimeout(tooltipTO);
-  const iso=(f?.properties?.iso3||'').toUpperCase();
-  const rec=countryByIso.get(iso);
-  if(!rec){hideTooltip();return;}
-  $('ttFlag').innerHTML = flagImg(iso,'md');
-  $('ttName').textContent=rec.name;
-  $('ttVal').textContent=rec.pop!=null?`Población: ${fmt.format(rec.pop)}`:iso;
-  tooltip.style.left=(x+14)+'px';tooltip.style.top=(y-10)+'px';
-  tooltip.classList.add('show');
-}
-function hideTooltip(){tooltipTO=setTimeout(()=>tooltip.classList.remove('show'),100);}
+<div class="sdivider"></div>
 
-/* SEARCH DROPDOWN */
-function buildSearchDrop(inputEl,dropEl){
-  inputEl.addEventListener('input',e=>{
-    const q=e.target.value.trim();
-    if(!q){dropEl.style.display='none';return;}
-    const ql=q.toLowerCase();
-    const matches=allCountries.filter(c=>c.name.toLowerCase().includes(ql))
-      .sort((a,b)=>{const as=a.name.toLowerCase().startsWith(ql),bs=b.name.toLowerCase().startsWith(ql);return(as&&!bs)?-1:(!as&&bs)?1:a.name.localeCompare(b.name);}).slice(0,10);
-    if(!matches.length){
-      dropEl.innerHTML=`<div class="sdrop-item" style="color:var(--text3)">Sin resultados para "${q}"</div>`;
-    }else{
-      dropEl.innerHTML=matches.map(c=>{
-        return`<div class="sdrop-item" data-iso="${c.iso3}">
-          <span class="sdrop-name">${flagImg(c.iso3,'sm')} <strong>${c.name}</strong></span>
-          <span class="sdrop-val">${c.pop!=null?fmt.format(c.pop):'—'}</span>
-        </div>`;
-      }).join('');
-    }
-    dropEl.style.display='block';
-  });
-  dropEl.addEventListener('click',e=>{
-    const item=e.target.closest('.sdrop-item');if(!item||!item.dataset.iso)return;
-    const f=featureByIso.get(item.dataset.iso);
-    if(f){onPickCountry(f);inputEl.value='';dropEl.style.display='none';if(dropEl===mobileSearchDrop&&!sheetOpen)openSheet();}
-  });
-  inputEl.addEventListener('keydown',e=>{
-    if(e.key==='Escape'){dropEl.style.display='none';inputEl.value='';}
-    if(e.key==='Enter'){const first=dropEl.querySelector('.sdrop-item[data-iso]');if(first)first.click();}
-  });
-  document.addEventListener('click',e=>{if(!e.target.closest('.search-wrap')&&!e.target.closest('#mobileSearchWrap'))dropEl.style.display='none';});
-}
+<!-- SERVICES -->
+<section class="section" id="services">
+  <div class="sec-label reveal"><span class="sec-label-tag">05 — Servicios</span><div class="sec-label-line"></div></div>
+  <h2 class="stit reveal">Lo que<br><em>ofrezco</em></h2>
+  <p class="stit-sub reveal d1">Soluciones digitales a medida, enfocadas en valor real.</p>
+  <div class="svc-grid reveal d1">
+    <div class="svc-card"><div class="svc-n">01</div><i class="bi bi-rocket-takeoff-fill svc-ico"></i><div class="svc-title">Transformación Digital</div><div class="svc-desc">Acompañamiento en adopción de herramientas digitales para mejorar productividad y eficiencia operativa.</div></div>
+    <div class="svc-card"><div class="svc-n">02</div><i class="bi bi-palette-fill svc-ico"></i><div class="svc-title">Diseño UI/UX</div><div class="svc-desc">Interfaces intuitivas, atractivas y centradas en el usuario. Estética y funcionalidad en armonía.</div></div>
+    <div class="svc-card"><div class="svc-n">03</div><i class="bi bi-braces svc-ico"></i><div class="svc-title">Desarrollo en Python</div><div class="svc-desc">Automatización, APIs, Flask/Django y scripts que optimizan tareas empresariales a medida.</div></div>
+    <div class="svc-card"><div class="svc-n">04</div><i class="bi bi-broadcast-pin svc-ico"></i><div class="svc-title">Asesoría TIC</div><div class="svc-desc">Integración de informática y telecomunicaciones para optimizar procesos y toma de decisiones.</div></div>
+    <div class="svc-card"><div class="svc-n">05</div><i class="bi bi-kanban-fill svc-ico"></i><div class="svc-title">Gestión de Proyectos</div><div class="svc-desc">Metodologías Scrum y tradicionales. Objetivos claros, recursos estratégicos y resultados medibles.</div></div>
+    <div class="svc-card"><div class="svc-n">06</div><i class="bi bi-mortarboard-fill svc-ico"></i><div class="svc-title">Capacitación Digital</div><div class="svc-desc">Formación en Python, herramientas digitales y tecnologías emergentes para equipos y profesionales.</div></div>
+  </div>
+</section>
 
-/* MAIN INTERACTION */
+<div class="sdivider"></div>
 
-function onPickCountry(f){
-  const iso=(f.properties?.iso3||'').toUpperCase();
-  const rec=countryByIso.get(iso);
-  if(!rec){setStatus('Sin datos','err');return;}
-  selectedISO3=iso;
-  // Bandera como imagen real (md = 26px)
-  $('infoFlag').innerHTML = flagImg(iso,'md');
+<!-- CONTACT -->
+<section class="section" id="contact">
+  <div class="sec-label reveal"><span class="sec-label-tag">06 — Contacto</span><div class="sec-label-line"></div></div>
+  <div class="con-grid">
+    <div class="reveal">
+      <h2 class="con-cta">Construyamos<br>algo <em>juntos.</em></h2>
+      <p class="con-body">Disponible para proyectos freelance, consultoría y colaboraciones. Respondo rápido y siempre abierto a nuevos desafíos.</p>
+      <div class="conlinks">
+        <a href="mailto:yared.henriquezhb@gmail.com" class="clink">
+          <div class="cico"><i class="bi bi-envelope-fill"></i></div>
+          yared.henriquezhb@gmail.com
+        </a>
+        <a href="https://wa.me/573015185270" target="_blank" class="clink">
+          <div class="cico"><i class="bi bi-whatsapp"></i></div>
+          +57 301 518 5270
+        </a>
+        <a href="https://github.com/DevCop95" target="_blank" class="clink">
+          <div class="cico"><i class="bi bi-github"></i></div>
+          github.com/DevCop95
+        </a>
+        <a href="https://www.salesforce.com/trailblazer/yhenriquezblanquicett" target="_blank" class="clink">
+          <div class="cico"><i class="bi bi-cloud-fill"></i></div>
+          Trailhead — Ranger · 195 insignias
+        </a>
+      </div>
+    </div>
 
-  $('selName').textContent=rec.name;
-  $('selISO').textContent=iso;$('selISO').style.display='inline';
-  $('labelTarget').textContent='Población';
-  $('selVal').textContent=rec.pop!=null?fmt.format(rec.pop):'—';
+    <div class="reveal d2">
 
-  const extraEl=$('countryExtra');
-  if(rec.capital||rec.region){
-    $('extraCapital').innerHTML = rec.capital ? `🏛️ <strong>${rec.capital}</strong>` : '';
-    $('extraRegion').innerHTML   = rec.region   ? `🌎 <strong>${rec.region}</strong>` : '';
-    $('extraSubregion').innerHTML= rec.subregion? `<strong>${rec.subregion}</strong>` : '';
-    extraEl.style.display='flex';
-  } else { extraEl.style.display='none'; }
-
-  globe.controls().autoRotate=false;
-  runNearest(rec,iso);
-  refreshPolygons();
-  const c=centroidOf(f);globe.pointOfView({lat:c.lat,lng:c.lng,altitude:1.6},1000);
-  setStatus('Listo','ok');
-  document.dispatchEvent(new CustomEvent('map3d:picked'));
-}
-
-
-function runNearest(rec,iso){
-  similarISO3Set.clear();
-
-  const nPop=findNearestByMetric(rec,'pop');
-  const nGdp=findNearestByMetric(rec,'gdp');
-  const nGpc=findNearestByMetric(rec,'gdp_pc');
-  const nComb=findNearestCombined(rec);
-
-  nearestISO3=nComb?.country?.iso3||null;
-  const simPct=nComb&&isFinite(nComb.score)?Math.max(0,(1-nComb.score)*100):null;
-
-  // Mostrar bandera + nombre del gemelo en el stat card
-  if(nComb){
-    $('sumVal').innerHTML=`<span style="display:inline-flex;align-items:center;gap:6px">${flagImg(nComb.country.iso3,'sm')} ${nComb.country.name}</span>`;
-  } else {
-    $('sumVal').textContent='—';
-  }
-  $('diffVal').textContent=simPct!=null?`${simPct.toFixed(1)}% similar`:'—';
-
-  const block=[];
-  block.push(`<div class="list-section">🧬 País gemelo</div>`);
-  if(nComb){
-    const sim=simPct.toFixed(1);
-    block.push(`
-      <div class="list-item" style="flex-direction:column;gap:6px">
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:6px">
-          <strong style="display:flex;align-items:center;gap:7px">
-            <a href="#" class="country-link" data-iso="${nComb.country.iso3}" style="display:flex;align-items:center;gap:7px">
-              ${flagImg(nComb.country.iso3,'sm')} ${nComb.country.name}
-            </a>
-          </strong>
-          <div style="display:flex;gap:5px;align-items:center;flex-shrink:0">
-            <span class="badge ${badgeClass(nComb.score)}">${sim}%</span>
-            <button class="gemelo-why-btn btn" data-iso="${nComb.country.iso3}" style="padding:3px 9px;font-size:11px;border-color:var(--border2);color:var(--text2)">¿Por qué?</button>
+      <!-- GITHUB CARD (sin repositorios) -->
+      <div class="gh-card">
+        <div class="gh-card-header">
+          <img class="gh-avatar" src="https://avatars.githubusercontent.com/DevCop95" alt="DevCop95" onerror="this.src='https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png'">
+          <div>
+            <div class="gh-card-name" id="gh-name">DevCop95</div>
+            <div class="gh-card-user">github.com/DevCop95</div>
           </div>
         </div>
-        <div style="height:3px;background:var(--border);border-radius:2px;overflow:hidden">
-          <div style="height:100%;background:linear-gradient(90deg,var(--green),var(--accent));border-radius:2px;width:${sim}%;transition:width .4s"></div>
+        <div class="gh-card-body">
+          <div class="gh-card-bio" id="gh-bio">Ingeniero de Sistemas · Developer · Cartagena, CO</div>
+          <div class="gh-stats">
+            <div class="gh-stat"><span class="gh-stat-n" id="gh-repos">—</span><span class="gh-stat-l">Repos</span></div>
+            <div class="gh-stat"><span class="gh-stat-n" id="gh-followers">—</span><span class="gh-stat-l">Seguidores</span></div>
+            <div class="gh-stat"><span class="gh-stat-n" id="gh-following">—</span><span class="gh-stat-l">Siguiendo</span></div>
+          </div>
+          <a href="https://github.com/DevCop95" target="_blank" class="gh-link">
+            <i class="bi bi-box-arrow-up-right"></i> Ver perfil completo en GitHub
+          </a>
         </div>
-      </div>`);
-  }
+      </div>
 
-  block.push(`<div class="list-section">Por métrica</div>`);
-  for(const[label,res]of[['Población',nPop],['PIB',nGdp],['PIB per cápita',nGpc]]){
-    if(res){
-      const sim=Math.max(0,(1-res.err)*100).toFixed(1);
-      block.push(`
-        <div class="list-item">
-          <strong>${label}</strong>
-          <span class="right-pack">
-            <span class="tag" style="display:inline-flex;align-items:center;gap:6px">${flagImg(res.country.iso3,'sm')} ${res.country.name}</span>
-            <span class="badge ${badgeClass(res.err)}">${sim}%</span>
-          </span>
-        </div>`);
+      <!-- MAPA -->
+      <div class="mapwrap" style="margin-top:1.5rem;">
+        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d125568.22!2d-75.5636!3d10.3916!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8ef625b37e82dc45%3A0x7fabe100d2fb1e43!2sCartagena%20de%20Indias!5e0!3m2!1ses!2sco!4v1234567890" allowfullscreen loading="lazy"></iframe>
+      </div>
+      <div class="maplbl"><i class="bi bi-geo-alt-fill"></i> Cartagena de Indias, Bolívar, Colombia</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p class="fcopy">© 2025 <strong>DevYHB</strong> · Diseñado y construido por <strong>Yared Henriquez</strong></p>
+  <div class="fsoc">
+    <a href="https://github.com/DevCop95" target="_blank"><i class="bi bi-github"></i></a>
+    <a href="https://wa.me/573015185270" target="_blank"><i class="bi bi-whatsapp"></i></a>
+    <a href="mailto:yared.henriquezhb@gmail.com"><i class="bi bi-envelope-fill"></i></a>
+    <a href="https://www.salesforce.com/trailblazer/yhenriquezblanquicett" target="_blank"><i class="bi bi-cloud-fill"></i></a>
+  </div>
+</footer>
+
+<a href="https://wa.me/573015185270" class="waf" target="_blank"><i class="bi bi-whatsapp"></i></a>
+
+<script>
+/* NAV */
+window.addEventListener('scroll', () => {
+  document.getElementById('mnav').classList.toggle('scrolled', window.scrollY > 50);
+});
+
+/* REVEAL */
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+  });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+/* GITHUB — solo perfil, sin repos */
+fetch('https://api.github.com/users/DevCop95')
+  .then(r => r.json())
+  .then(d => {
+    if (d.name) document.getElementById('gh-name').textContent = d.name;
+    if (d.bio)  document.getElementById('gh-bio').textContent  = d.bio;
+    document.getElementById('gh-repos').textContent    = d.public_repos ?? '—';
+    document.getElementById('gh-followers').textContent = d.followers    ?? '—';
+    document.getElementById('gh-following').textContent = d.following    ?? '—';
+  })
+  .catch(() => {});
+
+/* PORTFOLIO FILTER */
+const cg = document.getElementById('cgrid');
+const tg = document.getElementById('tgrid');
+document.querySelectorAll('.pfbtn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.pfbtn').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+    if (this.dataset.f === 'tech') {
+      cg.style.display = 'none';
+      tg.classList.add('vis');
     } else {
-      block.push(`<div class="list-item"><strong>${label}</strong><span class="tag">Sin datos</span></div>`);
+      tg.classList.remove('vis');
+      cg.style.display = 'grid';
     }
-  }
-
-  let top5=topKCombined(rec,6);
-  if(nComb) top5=top5.filter(x=>x.country.iso3!==nComb.country.iso3);
-  top5=top5.filter(x=>x.score<.5).slice(0,5);
-
-  if(top5.length){
-    block.push(`<div class="list-section">Otros similares</div>`);
-    for(const r of top5){
-      similarISO3Set.add(r.country.iso3);
-      const sim=Math.max(0,(1-r.score)*100).toFixed(1);
-      block.push(`
-        <div class="list-item">
-          <strong style="display:flex;align-items:center;gap:7px">
-            <a href="#" class="country-link" data-iso="${r.country.iso3}" style="display:flex;align-items:center;gap:7px">
-              ${flagImg(r.country.iso3,'sm')} ${r.country.name}
-            </a>
-          </strong>
-          <span class="badge ${badgeClass(r.score)}">${sim}%</span>
-        </div>`);
-    }
-  }
-
-  $('countriesList').innerHTML=block.join('');
-  $('countriesList').querySelectorAll('.country-link').forEach(el=>{
-    el.addEventListener('click',ev=>{
-      ev.preventDefault();
-      const f=featureByIso.get(el.dataset.iso);
-      if(f) onPickCountry(f);
-    });
   });
-  $('countriesList').querySelectorAll('.gemelo-why-btn').forEach(btn=>{
-    btn.addEventListener('click',ev=>{
-      ev.preventDefault(); ev.stopPropagation();
-      openGemeloModal(rec, nComb.country, nComb, nPop);
-    });
-  });
-}
-
-/* RESIZE */
-let resizeTO;
-function debounceResize(){
-  clearTimeout(resizeTO);resizeTO=setTimeout(()=>{
-    const wrap=$('globeWrap'),{width,height}=wrap.getBoundingClientRect();
-    globe.width(width).height(height);
-    globe.renderer().setPixelRatio(Math.min(window.devicePixelRatio||1,2));
-  },120);
-}
-
-/* MAIN */
-async function main(){
-  try{
-    setStatus('Cargando geo…','loading');setProgress(.1);
-    const[geo,popSrc]=await Promise.all([loadGeo(),loadPopulation()]);
-    features=geo;setProgress(.4);
-    await loadEconomics();setProgress(.8);
-    countryByIso=new Map(allCountries.map(c=>[c.iso3,c]));
-    for(const c of allCountries){if(c.cca2)isoFlags.set(c.iso3,c.cca2);}
-    for(const f of features){featureByIso.set((f.properties?.iso3||'').toUpperCase(),f);}
-
-    globe=Globe()($('globe'))
-      .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
-      .bumpImageUrl('https://unpkg.com/three-globe/example/img/earth-topology.png')
-      .backgroundImageUrl('https://unpkg.com/three-globe/example/img/night-sky.png')
-      .polygonsData(features)
-      .polygonCapColor(capColor)
-      .polygonSideColor(sideColor)
-      .polygonAltitude(altitude)
-      .polygonStrokeColor(()=>'rgba(10,20,40,.8)')
-      .onPolygonClick(onPickCountry)
-      .onPolygonHover(d=>{
-        document.body.style.cursor=d?'pointer':'grab';
-        if(d)showTooltip(d,mouseX,mouseY);else hideTooltip();
-      });
-
-    globe.renderer().setPixelRatio(Math.min(window.devicePixelRatio||1,2));
-    const ctrl=globe.controls();
-    ctrl.autoRotate=true;ctrl.autoRotateSpeed=0.5;
-    ctrl.minDistance=180;ctrl.maxDistance=600;
-    ctrl.enableDamping=true;ctrl.dampingFactor=.08;
-
-    const ro=new ResizeObserver(debounceResize);
-    ro.observe($('globeWrap'));
-    window.addEventListener('orientationchange',()=>setTimeout(debounceResize,300));
-    debounceResize();
-
-    buildSearchDrop($('searchInput'),$('searchDrop'));
-    buildSearchDrop($('searchInputMobile'),$('mobileSearchDrop'));
-    setProgress(1);setTimeout(()=>setProgress(0),600);
-    setStatus(popSrc==='api'?'Datos API':'Datos cache','ok');
-  }catch(err){console.error(err);setStatus('Error','err');}
-}
-main();
-
-/* EVENTS */
-$('btnDownload').addEventListener('click',()=>{
-  const url='data:text/json;charset=utf-8,'+encodeURIComponent(JSON.stringify([...allCountries].sort((a,b)=>a.name.localeCompare(b.name)),null,2));
-  Object.assign(document.createElement('a'),{href:url,download:'paises_datos.json'}).click();
 });
-
-/* BOTTOM SHEET */
-const sheet=$('bottomSheet');
-const closeBtn=$('sheetCloseBtn');
-const mobileSearchDrop=$('mobileSearchDrop');
-let sheetOpen=false;
-
-function openSheet(){
-  sheet.classList.add('open');
-  sheetOpen=true;
-  closeBtn.style.display='inline';
-  hideTooltip();
-}
-function closeSheet(){
-  sheet.classList.remove('open');
-  sheetOpen=false;
-  closeBtn.style.display='none';
-}
-function toggleSheet(){ sheetOpen?closeSheet():openSheet(); }
-
-$('sheetHandle').addEventListener('click',toggleSheet);
-closeBtn.addEventListener('click',e=>{e.stopPropagation();closeSheet();});
-
-let touchStartY=0;
-$('sheetHandle').addEventListener('touchstart',e=>{touchStartY=e.touches[0].clientY;},{passive:true});
-$('sheetHandle').addEventListener('touchend',e=>{
-  const dy=e.changedTouches[0].clientY-touchStartY;
-  if(dy>40)closeSheet(); else if(dy<-40)openSheet();
-},{passive:true});
-
-function syncSheet(){
-  if(!selectedISO3)return;
-  const flagHtml = $('infoFlag').innerHTML;
-  const name = $('selName').textContent;
-
-  // Peek: bandera + nombre
-  $('sheetPeek').innerHTML = flagHtml + `<span>${name}</span>`;
-
-  // Country bar
-  $('sheetFlag').innerHTML = flagHtml;
-  $('sheetName').textContent = name;
-  $('sheetVal').textContent = $('selVal').textContent;
-  $('sheetCountryBar').style.display='flex';
-
-  $('sheetLabelSum').textContent=$('labelSum').textContent;
-  $('sheetSumVal').innerHTML=$('sumVal').innerHTML;
-  $('sheetLabelDiff').textContent=$('labelDiff').textContent;
-  $('sheetDiffVal').textContent=$('diffVal').textContent;
-  $('sheetStats').style.display='grid';
-
-  $('sheetList').innerHTML=$('countriesList').innerHTML;
-  $('sheetList').querySelectorAll('.country-link').forEach(el=>{
-    el.addEventListener('click',ev=>{
-      ev.preventDefault();
-      const f=featureByIso.get(el.dataset.iso);
-      if(f){ onPickCountry(f); }
-    });
-  });
-  $('sheetList').querySelectorAll('.gemelo-why-btn').forEach(btn=>{
-    btn.addEventListener('click',ev=>{
-      ev.preventDefault(); ev.stopPropagation();
-      const iso=btn.dataset.iso;
-      const twin=countryByIso.get(iso);
-      const base=countryByIso.get(selectedISO3);
-      if(base&&twin){
-        const nCombLocal=findNearestCombined(base);
-        const nPopLocal=findNearestByMetric(base,'pop');
-        openGemeloModal(base,twin,nCombLocal,nPopLocal);
-      }
-    });
-  });
-}
-new MutationObserver(()=>{if(window.innerWidth<=980)syncSheet();}).observe($('countriesList'),{childList:true,subtree:true});
-document.addEventListener('map3d:picked',()=>{ if(window.innerWidth<=980) openSheet(); });
-
-/* GEMELO MODAL CLOSE */
-$('gModalClose').addEventListener('click', closeGemeloModal);
-$('gModalBackdrop').addEventListener('click', closeGemeloModal);
-document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeGemeloModal(); });
-
-/* WEIGHTS SLIDERS */
-$('weightsToggle').addEventListener('click',()=>{
-  $('weightsToggle').classList.toggle('open');
-  $('weightsBody').classList.toggle('open');
-});
-function onSliderChange(){
-  WEIGHTS.pop    = +$('wPop').value;
-  WEIGHTS.gdp    = +$('wGdp').value;
-  WEIGHTS.gdp_pc = +$('wGdpPc').value;
-  updateWeightsUI();
-}
-['wPop','wGdp','wGdpPc'].forEach(id=>$(id).addEventListener('input', onSliderChange));
-
-function syncWeightsPanel(){
-  $('weightsPanel').style.display = 'block';
-}
 </script>
 </body>
 </html>
