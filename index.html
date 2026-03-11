@@ -640,13 +640,32 @@ function findNearestByMetric(base,metric){
   }
   return best?{country:best,err:bestErr}:null;
 }
-function combinedScore(base,cand){
-  const parts=[];let wUsed=0;
-  if(base.pop!=null&&cand.pop!=null){parts.push(WEIGHTS.pop*relErr(base.pop,cand.pop));wUsed+=WEIGHTS.pop;}
-  if(base.gdp!=null&&cand.gdp!=null){parts.push(WEIGHTS.gdp*relErr(base.gdp,cand.gdp));wUsed+=WEIGHTS.gdp;}
-  if(base.gdp_pc!=null&&cand.gdp_pc!=null){parts.push(WEIGHTS.gdp_pc*relErr(base.gdp_pc,cand.gdp_pc));wUsed+=WEIGHTS.gdp_pc;}
-  if(!parts.length)return Infinity;
-  return parts.reduce((a,b)=>a+b,0)/(wUsed||1);
+function combinedScore(base, cand){
+
+  const parts = []
+
+  if(base.pop && cand.pop){
+    const e = relErr(base.pop, cand.pop)
+    parts.push(e*e)
+  }
+
+  if(base.gdp && cand.gdp){
+    const e = relErr(base.gdp, cand.gdp)
+    parts.push(e*e)
+  }
+
+  if(base.gdp_pc && cand.gdp_pc){
+    const e = relErr(base.gdp_pc, cand.gdp_pc)
+    parts.push(e*e)
+  }
+
+  if(!parts.length) return Infinity
+
+  const dist = Math.sqrt(
+    parts.reduce((a,b)=>a+b,0)
+  )
+
+  return dist
 }
 function findNearestCombined(base){
   let best=null,bestScore=Infinity;
