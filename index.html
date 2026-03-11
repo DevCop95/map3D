@@ -666,60 +666,97 @@ function topKCombined(base,k){
     .slice(0,k);
 }
 
-// Genera frase natural explicando por qué son gemelos
-function explainTwin(base, twin, popSim, gdpSim, gdpPcSim){
-  const strong=[];
-  if(popSim>=75)                       strong.push('tamaño de población');
-  if(gdpSim!=null && gdpSim>=75)       strong.push('economía total');
-  if(gdpPcSim!=null && gdpPcSim>=75)   strong.push('nivel de vida por habitante');
-
-  if(strong.length===3)
-    return `<em>${base.name}</em> y <em>${twin.name}</em> son prácticamente iguales en tamaño de población, economía total y nivel de vida. Es inusual encontrar dos países que coincidan en los tres a la vez.`;
-  if(strong.length===2)
-    return `Lo que los convierte en gemelos es que comparten ${strong[0]} y ${strong[1]} de forma muy cercana. Esa combinación no es común entre países.`;
-  if(strong.length===1)
-    return `Su mayor coincidencia está en ${strong[0]}. En las demás métricas hay diferencias, pero ningún otro país se acerca más en el balance general.`;
-
-  const best=[
-    {label:'población',v:popSim},
-    gdpSim!=null?{label:'economía',v:gdpSim}:null,
-    gdpPcSim!=null?{label:'nivel de vida',v:gdpPcSim}:null,
-  ].filter(Boolean).sort((a,b)=>b.v-a.v)[0];
-  return `No existe un país estructuralmente muy similar a <em>${base.name}</em>, pero <em>${twin.name}</em> es el más cercano disponible. Su mayor punto en común es ${best.label}.`;
-}
-
 function barColor(p){ return p>=75?'var(--green)':p>=50?'var(--yellow)':'var(--orange)'; }
 
+function buildFrase(base, twin, metrics){
+  // Describe el patrón real de similitudes y diferencias en todas las métricas
+  const available = metrics.filter(m=>m.sim!=null);
+  if(!available.length) return `<em>${twin.name}</em> es el país más parecido a <em>${base.name}</em> según los datos disponibles.`;
+
+  const high  = available.filter(m=>m.sim>=75);
+  const mid   = available.filter(m=>m.sim>=50&&m.sim<75);
+  const low   = available.filter(m=>m.sim<50);
+
+  let parts=[];
+  if(high.length)  parts.push(`coinciden fuertemente en ${high.map(m=>m.label.toLowerCase()).join(' y ')}`);
+  if(mid.length)   parts.push(`tienen cierta cercanía en ${mid.map(m=>m.label.toLowerCase()).join(' y ')}`);
+  if(low.length)   parts.push(`difieren notablemente en ${low.map(m=>m.label.toLowerCase()).join(' y ')}`);
+
+  const intro = high.length===available.length
+    ? `<em>${base.name}</em> y <em>${twin.name}</em> son estructuralmente muy parecidos`
+    : low.length===available.length
+      ? `<em>${base.name}</em> y <em>${twin.name}</em> no se parecen mucho en ninguna métrica individual, pero son los más cercanos en el balance combinado`
+      : `<em>${base.name}</em> y <em>${twin.name}</em>`;
+
+  return `${intro}: ${parts.join(', ')}.`;
+}
+
 function openGemeloModal(base, twin, nComb, nPop){
-  const popSim   = Math.max(0,(1-relErr(base.pop||0,  twin.pop||0))*100);
-  const gdpSim   = (base.gdp   &&twin.gdp)    ? Math.max(0,(1-relErr(base.gdp,   twin.gdp))*100)    : null;
-  const gdpPcSim = (base.gdp_pc&&twin.gdp_pc) ? Math.max(0,(1-relErr(base.gdp_pc,twin.gdp_pc))*100) : null;
-  const sim      = Math.max(0,(1-nComb.score)*100);
+  const sim = Math.max(0,(1-nComb.score)*100);
 
-  // Header
-  // Usar innerHTML para forzar renderizado de emojis en móvil
-  $('gmFlags').innerHTML = `<span style="font-size:36px">${flagEmoji(base.iso3)}</span> <span style="font-size:20px;color:var(--text3)">+</span> <span style="font-size:36px">${flagEmoji(twin.iso3)}</span>`;
-  $('gmTitle').textContent   = `${base.name} & ${twin.name}`;
-  $('gmSubtitle').textContent= `${sim.toFixed(1)}% de similitud estructural`;
-
-  // Frase
-  $('gmFrase').innerHTML = explainTwin(base, twin, popSim, gdpSim, gdpPcSim);
-
-  // Barras de métricas
+  // Las 3 métricas con valores reales de ambos países + similitud
   const metrics=[
-    {label:'Población',    val:popSim},
-    gdpSim!=null    ? {label:'PIB total',    val:gdpSim}    : null,
-    gdpPcSim!=null  ? {label:'Nivel de vida',val:gdpPcSim}  : null,
-  ].filter(Boolean);
+    {
+      label:'Población',
+      baseVal: base.pop,
+      twinVal: twin.pop,
+      sim: (base.pop&&twin.pop) ? Math.max(0,(1-relErr(base.pop,twin.pop))*100) : null,
+      fmt: v => fmt.format(v)+' hab.'
+    },
+    {
+      label:'PIB total',
+      baseVal: base.gdp,
+      twinVal: twin.gdp,
+      sim: (base.gdp&&twin.gdp) ? Math.max(0,(1-relErr(base.gdp,twin.gdp))*100) : null,
+      fmt: v => fmtUSD.format(v)
+    },
+    {
+      label:'PIB per cápita',
+      baseVal: base.gdp_pc,
+      twinVal: twin.gdp_pc,
+      sim: (base.gdp_pc&&twin.gdp_pc) ? Math.max(0,(1-relErr(base.gdp_pc,twin.gdp_pc))*100) : null,
+      fmt: v => fmtUSD.format(v)
+    },
+  ];
 
-  $('gmMetrics').innerHTML = metrics.map(m=>`
-    <div class="gm-metric-row">
-      <span class="gm-label">${m.label}</span>
-      <div class="gm-bar-wrap">
-        <div class="gm-bar" style="width:${m.val.toFixed(1)}%;background:${barColor(m.val)}"></div>
-      </div>
-      <span class="gm-pct" style="color:${barColor(m.val)}">${m.val.toFixed(0)}%</span>
-    </div>`).join('');
+  // Header: banderas + nombres
+  $('gmFlags').innerHTML =
+    `<span style="font-size:32px">${flagEmoji(base.iso3)}</span>`+
+    `<span style="font-size:14px;color:var(--text3);margin:0 6px">vs</span>`+
+    `<span style="font-size:32px">${flagEmoji(twin.iso3)}</span>`;
+  $('gmTitle').textContent    = `${base.name} & ${twin.name}`;
+  $('gmSubtitle').textContent = `${sim.toFixed(1)}% de similitud estructural`;
+
+  // Frase que describe el cuadro completo
+  $('gmFrase').innerHTML = buildFrase(base, twin, metrics);
+
+  // Tabla de métricas: valor base | barra | valor twin
+  $('gmMetrics').innerHTML = metrics.map(m=>{
+    if(m.sim==null) return `
+      <div class="gm-metric-row">
+        <span class="gm-label">${m.label}</span>
+        <span style="font-size:11px;color:var(--text3);flex:1;text-align:center">Sin datos</span>
+      </div>`;
+
+    const bv = m.baseVal ? m.fmt(m.baseVal) : '—';
+    const tv = m.twinVal ? m.fmt(m.twinVal) : '—';
+    const bc = barColor(m.sim);
+    return `
+      <div style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <span class="gm-label" style="width:auto">${m.label}</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:${bc}">${m.sim.toFixed(0)}% similar</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:5px">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);flex:1;text-align:left">${bv}</span>
+          <span style="font-size:10px;color:var(--text3)">↔</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);flex:1;text-align:right">${tv}</span>
+        </div>
+        <div class="gm-bar-wrap">
+          <div class="gm-bar" style="width:${m.sim.toFixed(1)}%;background:${bc}"></div>
+        </div>
+      </div>`;
+  }).join('');
 
   // Alerta estructural
   const alertMsg = detectStructuralAlert(base, twin);
@@ -727,13 +764,12 @@ function openGemeloModal(base, twin, nComb, nPop){
   if(alertMsg){ alertEl.textContent='⚠️ '+alertMsg; alertEl.style.display='block'; }
   else alertEl.style.display='none';
 
-  // Botón navegar al gemelo
+  // Botón
   const btn=$('gmSelectBtn');
   btn.textContent=`Explorar ${twin.name} →`;
   btn.onclick=()=>{ closeGemeloModal(); const f=featureByIso.get(twin.iso3); if(f) onPickCountry(f); };
 
   $('gModal').classList.add('show');
-  // Ocultar tooltip mientras el modal está abierto
   $('tooltip').classList.remove('show'); $('tooltip').style.visibility='hidden';
 }
 function closeGemeloModal(){ $('gModal').classList.remove('show'); $('tooltip').style.visibility=''; }
