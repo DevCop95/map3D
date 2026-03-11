@@ -167,7 +167,7 @@
 
     /* ── GEMELO MODAL ── */
     #gModal{
-      position:fixed;inset:0;z-index:900;
+      position:fixed;inset:0;z-index:1100;
       display:flex;align-items:center;justify-content:center;
       padding:16px;
       opacity:0;pointer-events:none;
@@ -179,7 +179,7 @@
       background:rgba(2,8,18,.75);backdrop-filter:blur(4px);
     }
     #gModalBox{
-      position:relative;z-index:1;
+      position:relative;z-index:1101;
       background:var(--panel);
       border:1px solid var(--border2);
       border-radius:16px;
@@ -678,7 +678,8 @@ function openGemeloModal(base, twin, nComb, nPop){
   const sim      = Math.max(0,(1-nComb.score)*100);
 
   // Header
-  $('gmFlags').textContent   = flagEmoji(base.iso3)+' '+flagEmoji(twin.iso3);
+  // Usar innerHTML para forzar renderizado de emojis en móvil
+  $('gmFlags').innerHTML = `<span style="font-size:36px">${flagEmoji(base.iso3)}</span> <span style="font-size:20px;color:var(--text3)">+</span> <span style="font-size:36px">${flagEmoji(twin.iso3)}</span>`;
   $('gmTitle').textContent   = `${base.name} & ${twin.name}`;
   $('gmSubtitle').textContent= `${sim.toFixed(1)}% de similitud estructural`;
 
@@ -713,8 +714,10 @@ function openGemeloModal(base, twin, nComb, nPop){
   btn.onclick=()=>{ closeGemeloModal(); const f=featureByIso.get(twin.iso3); if(f) onPickCountry(f); };
 
   $('gModal').classList.add('show');
+  // Ocultar tooltip mientras el modal está abierto
+  $('tooltip').classList.remove('show'); $('tooltip').style.visibility='hidden';
 }
-function closeGemeloModal(){ $('gModal').classList.remove('show'); }
+function closeGemeloModal(){ $('gModal').classList.remove('show'); $('tooltip').style.visibility=''; }
 
 // #9 — Detecta inconsistencia estructural (PIB similar pero PIB pc muy diferente)
 function detectStructuralAlert(base, twin){
