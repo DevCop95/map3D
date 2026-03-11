@@ -813,6 +813,7 @@ function flagEmoji(iso3){
 /* TOOLTIP */
 const tooltip=$('tooltip');let tooltipTO;
 function showTooltip(f,x,y){
+  if(sheetOpen) return; // no mostrar tooltip cuando el sheet está abierto
   clearTimeout(tooltipTO);
   const iso=(f?.properties?.iso3||'').toUpperCase();
   const rec=countryByIso.get(iso);
@@ -1135,6 +1136,7 @@ function openSheet(){
   sheet.classList.add('open');
   sheetOpen=true;
   closeBtn.style.display='inline';
+  hideTooltip(); // limpiar cualquier tooltip visible
 }
 function closeSheet(){
   sheet.classList.remove('open');
