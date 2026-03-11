@@ -1122,6 +1122,20 @@ function syncSheet(){
       if(f){ onPickCountry(f); }
     });
   });
+  // Wire "¿Por qué?" en el sheet móvil
+  $('sheetList').querySelectorAll('.gemelo-why-btn').forEach(btn=>{
+    btn.addEventListener('click',ev=>{
+      ev.preventDefault(); ev.stopPropagation();
+      const iso=btn.dataset.iso;
+      const twin=countryByIso.get(iso);
+      const base=countryByIso.get(selectedISO3);
+      if(base&&twin){
+        const nCombLocal=findNearestCombined(base);
+        const nPopLocal=findNearestByMetric(base,'pop');
+        openGemeloModal(base,twin,nCombLocal,nPopLocal);
+      }
+    });
+  });
 }
 new MutationObserver(()=>{if(window.innerWidth<=980)syncSheet();}).observe($('countriesList'),{childList:true,subtree:true});
 // Auto-open when country picked on mobile
