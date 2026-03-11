@@ -80,6 +80,17 @@
     .metric-wrap{display:flex;align-items:center;gap:6px;}
     .metric-label{font-size:11px;color:var(--text2);font-family:'JetBrains Mono',monospace;white-space:nowrap;}
 
+    /* FLAG IMAGE */
+    .flag-img{
+      display:inline-block;vertical-align:middle;
+      border-radius:2px;object-fit:cover;flex-shrink:0;
+      box-shadow:0 1px 3px rgba(0,0,0,.4);
+    }
+    .flag-img-sm{width:20px;height:15px;}
+    .flag-img-md{width:26px;height:19px;}
+    .flag-img-lg{width:36px;height:27px;}
+    .flag-img-xl{width:44px;height:33px;}
+
     /* SIDEBAR */
     #sidebar{
       grid-row:2;grid-column:1;
@@ -91,7 +102,7 @@
       background:linear-gradient(135deg,rgba(56,189,248,.04),transparent);
     }
     .info-country{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
-    .info-flag{font-size:22px;line-height:1;flex-shrink:0;}
+    .info-flag{font-size:22px;line-height:1;flex-shrink:0;display:flex;align-items:center;}
     .info-name{font-size:16px;font-weight:700;color:var(--text);letter-spacing:-.3px;}
     .info-iso{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text3);background:var(--bg2);border:1px solid var(--border);padding:1px 6px;border-radius:4px;}
     .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
@@ -133,9 +144,176 @@
       display:flex;justify-content:space-between;align-items:center;
       padding:8px 14px;cursor:pointer;font-size:13px;color:var(--text);
       border-bottom:1px solid var(--border);transition:background .12s;
+      gap:8px;
     }
     .sdrop-item:hover{background:rgba(56,189,248,.08);}
     .sdrop-item .sdrop-val{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);}
+    .sdrop-item .sdrop-name{display:flex;align-items:center;gap:8px;flex:1;}
+
+    /* ── COUNTRY EXTRA INFO ── */
+    .country-extra{
+      padding:6px 12px 8px;
+      display:flex;flex-wrap:wrap;gap:4px 10px;
+      border-bottom:1px solid var(--border);
+      font-size:11px;color:var(--text3);
+    }
+    .country-extra span{display:flex;align-items:center;gap:3px;}
+    .country-extra strong{color:var(--text2);}
+
+    /* ── WEIGHTS PANEL ── */
+    #weightsPanel{
+      padding:8px 12px 10px;
+      border-bottom:1px solid var(--border);
+    }
+    .weights-header{
+      display:flex;align-items:center;justify-content:space-between;
+      cursor:pointer;user-select:none;margin-bottom:0;
+    }
+    .weights-header span{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);}
+    .weights-header .w-chevron{font-size:10px;color:var(--text3);transition:transform .2s;}
+    .weights-header.open .w-chevron{transform:rotate(180deg);}
+    .weights-body{
+      max-height:0;overflow:hidden;
+      transition:max-height .25s ease;
+    }
+    .weights-body.open{max-height:200px;}
+    .w-row{display:flex;align-items:center;gap:8px;margin-top:8px;}
+    .w-label{font-size:11px;color:var(--text2);width:90px;flex-shrink:0;}
+    .w-slider{
+      flex:1;-webkit-appearance:none;appearance:none;
+      height:4px;border-radius:2px;background:var(--border2);outline:none;cursor:pointer;
+    }
+    .w-slider::-webkit-slider-thumb{
+      -webkit-appearance:none;width:14px;height:14px;border-radius:50%;
+      background:var(--accent);cursor:pointer;
+    }
+    .w-pct{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);width:30px;text-align:right;}
+    .weights-note{font-size:10px;color:var(--text3);margin-top:6px;text-align:center;}
+
+    /* ── EXCLUDED COUNTRIES ── */
+    .equiv-item{display:flex;align-items:center;gap:8px;}
+    .equiv-exclude{
+      width:16px;height:16px;flex-shrink:0;cursor:pointer;
+      accent-color:var(--red);
+    }
+
+    /* ── GEMELO MODAL ── */
+    #gModal{
+      position:fixed;inset:0;z-index:1100;
+      display:flex;align-items:center;justify-content:center;
+      padding:16px;
+      opacity:0;pointer-events:none;
+      transition:opacity .2s;
+    }
+    #gModal.show{opacity:1;pointer-events:all;}
+    #gModalBackdrop{
+      position:absolute;inset:0;
+      background:rgba(2,8,18,.75);backdrop-filter:blur(4px);
+    }
+    #gModalBox{
+      position:relative;z-index:1101;
+      background:var(--panel);
+      border:1px solid var(--border2);
+      border-radius:16px;
+      width:100%;max-width:420px;
+      max-height:90dvh;
+      display:flex;flex-direction:column;
+      box-shadow:0 24px 60px rgba(0,0,0,.6);
+      overflow:hidden;
+      transform:translateY(12px) scale(.97);
+      transition:transform .22s cubic-bezier(.34,1.4,.64,1);
+    }
+    #gModal.show #gModalBox{transform:translateY(0) scale(1);}
+    #gModalHeader{
+      padding:16px 18px 12px;
+      background:linear-gradient(135deg,rgba(56,189,248,.06),transparent);
+      border-bottom:1px solid var(--border);
+    }
+    .gm-flags{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+    .gm-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px;}
+    .gm-subtitle{
+      display:inline-flex;align-items:center;gap:5px;
+      font-size:12px;color:var(--green);font-weight:600;
+      background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);
+      padding:2px 8px;border-radius:20px;
+    }
+    #gModalClose{
+      position:absolute;top:12px;right:14px;
+      background:rgba(255,255,255,.06);border:1px solid var(--border);
+      color:var(--text2);width:28px;height:28px;border-radius:8px;
+      font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+    }
+    #gModalClose:hover{color:var(--text);border-color:var(--border2);}
+    #gModalBody{padding:16px 18px 18px;display:flex;flex-direction:column;gap:14px;overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch;}
+    .gm-frase{
+      font-size:13px;color:var(--text);line-height:1.65;
+      padding:10px 12px;
+      background:rgba(56,189,248,.04);
+      border-left:3px solid var(--accent);
+      border-radius:0 8px 8px 0;
+    }
+    .gm-frase em{color:var(--accent);font-style:normal;font-weight:600;}
+    .gm-metrics{display:flex;flex-direction:column;gap:8px;}
+    .gm-metric-row{display:flex;align-items:center;gap:10px;}
+    .gm-label{
+      font-family:'JetBrains Mono',monospace;font-size:10px;
+      color:var(--text3);text-transform:uppercase;letter-spacing:.5px;
+      width:92px;flex-shrink:0;
+    }
+    .gm-bar-wrap{flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden;}
+    .gm-bar{height:100%;border-radius:4px;transition:width .6s .1s ease-out;}
+    .gm-pct{
+      font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;
+      width:40px;text-align:right;flex-shrink:0;
+    }
+    .gm-info-grid{
+      display:grid;grid-template-columns:1fr auto 1fr;
+      gap:6px;align-items:start;
+    }
+    .gm-info-col{display:flex;flex-direction:column;gap:5px;}
+    .gm-info-col.right{text-align:right;align-items:flex-end;}
+    .gm-info-col.left{text-align:left;align-items:flex-start;}
+    .gm-info-divider{
+      display:flex;flex-direction:column;align-items:center;
+      justify-content:flex-start;padding-top:2px;gap:4px;
+    }
+    .gm-info-chip{
+      font-size:11px;padding:2px 8px;border-radius:6px;
+      background:rgba(56,189,248,.07);border:1px solid var(--border);
+      color:var(--text2);white-space:nowrap;max-width:100%;
+      overflow:hidden;text-overflow:ellipsis;
+    }
+    .gm-info-chip.same{
+      background:rgba(52,211,153,.08);border-color:rgba(52,211,153,.2);
+      color:var(--green);
+    }
+    .gm-info-chip.diff{
+      background:rgba(251,146,60,.06);border-color:rgba(251,146,60,.15);
+      color:var(--orange);
+    }
+    .gm-section-title{
+      font-size:10px;text-transform:uppercase;letter-spacing:.6px;
+      color:var(--text3);margin-bottom:8px;padding-bottom:5px;
+      border-bottom:1px solid var(--border);
+    }
+    .gm-section{margin-bottom:4px;}
+    .gm-alert{
+      padding:9px 12px;
+      background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.2);
+      border-radius:8px;font-size:12px;color:var(--yellow);line-height:1.5;
+    }
+    .gm-btn{
+      display:block;width:100%;padding:10px;
+      background:rgba(56,189,248,.08);border:1px solid var(--border2);
+      border-radius:10px;color:var(--accent);
+      font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;
+      cursor:pointer;text-align:center;transition:background .15s;
+    }
+    .gm-btn:hover{background:rgba(56,189,248,.15);}
+    .empty-state{text-align:center;padding:40px 20px;color:var(--text3);font-size:13px;line-height:1.8;}
+    .empty-icon{font-size:32px;margin-bottom:10px;}
+    .list-item{animation:fadeUp .18s ease both;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
 
     /* LIST */
     #countriesList{overflow:auto;flex:1;padding:6px;-webkit-overflow-scrolling:touch;scroll-behavior:smooth;}
@@ -165,86 +343,6 @@
     .country-link{color:var(--accent);text-decoration:none;font-weight:600;}
     .country-link:hover{opacity:.75;text-decoration:underline;}
 
-    /* ── GEMELO MODAL ── */
-    #gModal{
-      position:fixed;inset:0;z-index:1100;
-      display:flex;align-items:center;justify-content:center;
-      padding:16px;
-      opacity:0;pointer-events:none;
-      transition:opacity .2s;
-    }
-    #gModal.show{opacity:1;pointer-events:all;}
-    #gModalBackdrop{
-      position:absolute;inset:0;
-      background:rgba(2,8,18,.75);backdrop-filter:blur(4px);
-    }
-    #gModalBox{
-      position:relative;z-index:1101;
-      background:var(--panel);
-      border:1px solid var(--border2);
-      border-radius:16px;
-      width:100%;max-width:420px;
-      box-shadow:0 24px 60px rgba(0,0,0,.6);
-      overflow:hidden;
-      transform:translateY(12px) scale(.97);
-      transition:transform .22s cubic-bezier(.34,1.4,.64,1);
-    }
-    #gModal.show #gModalBox{transform:translateY(0) scale(1);}
-    #gModalHeader{
-      padding:16px 18px 12px;
-      background:linear-gradient(135deg,rgba(56,189,248,.06),transparent);
-      border-bottom:1px solid var(--border);
-    }
-    .gm-flags{font-size:28px;margin-bottom:6px;letter-spacing:4px;}
-    .gm-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:2px;}
-    .gm-subtitle{font-size:12px;color:var(--text3);}
-    #gModalClose{
-      position:absolute;top:12px;right:14px;
-      background:rgba(255,255,255,.06);border:1px solid var(--border);
-      color:var(--text2);width:28px;height:28px;border-radius:8px;
-      font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;
-    }
-    #gModalClose:hover{color:var(--text);border-color:var(--border2);}
-    #gModalBody{padding:16px 18px 18px;display:flex;flex-direction:column;gap:14px;}
-    .gm-frase{
-      font-size:13px;color:var(--text);line-height:1.65;
-      padding:10px 12px;
-      background:rgba(56,189,248,.04);
-      border-left:3px solid var(--accent);
-      border-radius:0 8px 8px 0;
-    }
-    .gm-frase em{color:var(--accent);font-style:normal;font-weight:600;}
-    .gm-metrics{display:flex;flex-direction:column;gap:8px;}
-    .gm-metric-row{display:flex;align-items:center;gap:10px;}
-    .gm-label{
-      font-family:'JetBrains Mono',monospace;font-size:10px;
-      color:var(--text3);text-transform:uppercase;letter-spacing:.5px;
-      width:92px;flex-shrink:0;
-    }
-    .gm-bar-wrap{flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden;}
-    .gm-bar{height:100%;border-radius:4px;transition:width .6s .1s ease-out;}
-    .gm-pct{
-      font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;
-      width:40px;text-align:right;flex-shrink:0;
-    }
-    .gm-alert{
-      padding:9px 12px;
-      background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.2);
-      border-radius:8px;font-size:12px;color:var(--yellow);line-height:1.5;
-    }
-    .gm-btn{
-      display:block;width:100%;padding:10px;
-      background:rgba(56,189,248,.08);border:1px solid var(--border2);
-      border-radius:10px;color:var(--accent);
-      font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;
-      cursor:pointer;text-align:center;transition:background .15s;
-    }
-    .gm-btn:hover{background:rgba(56,189,248,.15);}
-    .empty-state{text-align:center;padding:40px 20px;color:var(--text3);font-size:13px;line-height:1.8;}
-    .empty-icon{font-size:32px;margin-bottom:10px;}
-    .list-item{animation:fadeUp .18s ease both;}
-    @keyframes fadeUp{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
-
     /* GLOBE */
     #globeWrap{
       grid-row:2;grid-column:2;
@@ -261,11 +359,11 @@
       font-size:12px;color:var(--text);
       backdrop-filter:blur(8px);
       opacity:0;transition:opacity .12s;
-      display:flex;align-items:center;gap:6px;
+      display:flex;align-items:center;gap:8px;
       box-shadow:0 4px 16px rgba(0,0,0,.4);
     }
     #tooltip.show{opacity:1;}
-    #tooltip .t-flag{font-size:16px;}
+    #tooltip .t-flag{display:flex;align-items:center;}
     #tooltip .t-name{font-weight:600;}
     #tooltip .t-val{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);}
 
@@ -275,7 +373,6 @@
       bottom:0;left:0;right:0;
       z-index:400;
       height:72dvh;
-      /* collapsed: sheet fuera de pantalla, solo el handle asoma (52px) */
       transform:translateY(calc(100% - 52px));
       transition:transform .32s cubic-bezier(.32,1,.4,1);
       background:var(--panel);
@@ -284,7 +381,6 @@
       box-shadow:0 -4px 24px rgba(0,0,0,.4);
       display:none;
       flex-direction:column;
-      /* importante: el contenido no debe desbordarse del handle cuando está cerrado */
       overflow:hidden;
     }
     #bottomSheet.open{
@@ -308,8 +404,8 @@
       font-size:13px;font-weight:600;color:var(--text2);
       white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
       text-align:center;
+      display:flex;align-items:center;justify-content:center;gap:8px;
     }
-    #sheetPeek .peek-flag{margin-right:4px;}
     #sheetCloseBtn{
       background:rgba(255,255,255,.06);border:1px solid var(--border);
       color:var(--text2);padding:4px 10px;border-radius:8px;
@@ -328,7 +424,7 @@
       display:flex;align-items:center;gap:8px;
       padding:8px 14px 10px;border-bottom:1px solid var(--border);flex-shrink:0;
     }
-    #sheetCountryBar .s-flag{font-size:20px;}
+    #sheetCountryBar .s-flag{display:flex;align-items:center;}
     #sheetCountryBar .s-name{font-size:15px;font-weight:700;color:var(--text);}
     #sheetCountryBar .s-val{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent);}
     #sheetStats{
@@ -363,7 +459,6 @@
         grid-template-columns:1fr;
         grid-template-rows:auto 1fr;
         gap:6px;
-        /* globo no queda tapado por el handle de 52px */
         padding-bottom:calc(52px + var(--safe-bottom));
       }
       #globeWrap{grid-row:2;grid-column:1;}
@@ -409,6 +504,11 @@
         <span class="info-name" id="selName">Selecciona un país</span>
         <span class="info-iso" id="selISO" style="display:none"></span>
       </div>
+      <div class="country-extra" id="countryExtra" style="display:none">
+        <span id="extraCapital"></span>
+        <span id="extraRegion"></span>
+        <span id="extraSubregion"></span>
+      </div>
       <div class="stats-grid">
         <div class="stat-card">
           <div class="stat-label" id="labelTarget">Objetivo</div>
@@ -429,6 +529,30 @@
       <div class="legend-item"><span class="sw sel"></span>Seleccionado</div>
       <div class="legend-item"><span class="sw eq"></span><span id="legendModeLabel">Equivalentes</span></div>
       <div class="legend-item"><span class="sw base"></span>Otros</div>
+    </div>
+    <div id="weightsPanel" style="display:none">
+      <div class="weights-header" id="weightsToggle">
+        <span>⚖️ Pesos de similitud</span>
+        <span class="w-chevron">▼</span>
+      </div>
+      <div class="weights-body" id="weightsBody">
+        <div class="w-row">
+          <span class="w-label">Población</span>
+          <input type="range" class="w-slider" id="wPop" min="0" max="100" value="50">
+          <span class="w-pct" id="wPopPct">50%</span>
+        </div>
+        <div class="w-row">
+          <span class="w-label">PIB total</span>
+          <input type="range" class="w-slider" id="wGdp" min="0" max="100" value="30">
+          <span class="w-pct" id="wGdpPct">30%</span>
+        </div>
+        <div class="w-row">
+          <span class="w-label">PIB per cáp.</span>
+          <input type="range" class="w-slider" id="wGdpPc" min="0" max="100" value="20">
+          <span class="w-pct" id="wGdpPcPct">20%</span>
+        </div>
+        <div class="weights-note" id="weightsNote">Total: 100%</div>
+      </div>
     </div>
     <div class="search-wrap">
       <input id="searchInput" type="search" placeholder="Buscar país… (ej: Colombia)" autocomplete="off">
@@ -454,9 +578,8 @@
   </div>
 </div>
 
-<!-- BOTTOM SHEET (sin FAB — se abre solo al seleccionar país) -->
+<!-- BOTTOM SHEET -->
 <div id="bottomSheet" role="dialog" aria-modal="true">
-  <!-- Handle: siempre visible, muestra país activo o "toca un país" -->
   <div id="sheetHandle">
     <div class="handle-bar-wrap">
       <div class="handle-bar"></div>
@@ -464,7 +587,6 @@
     <span id="sheetPeek">Toca un país en el globo</span>
     <button id="sheetCloseBtn" style="display:none">✕</button>
   </div>
-  <!-- Contenido (solo visible cuando abierto) -->
   <div id="sheetBody">
     <div id="sheetCountryBar" style="display:none">
       <span class="s-flag" id="sheetFlag"></span>
@@ -501,18 +623,27 @@
     </div>
     <div id="gModalBody">
       <div class="gm-frase" id="gmFrase"></div>
-      <div class="gm-metrics" id="gmMetrics"></div>
+      <div class="gm-section" id="gmInfoSection" style="display:none">
+        <div class="gm-section-title">📍 Información básica</div>
+        <div class="gm-info-grid" id="gmInfoGrid"></div>
+      </div>
+      <div class="gm-section">
+        <div class="gm-section-title">📊 Métricas comparadas</div>
+        <div class="gm-metrics" id="gmMetrics"></div>
+      </div>
       <div class="gm-alert" id="gmAlert" style="display:none"></div>
+      </div>
       <button class="gm-btn" id="gmSelectBtn"></button>
     </div>
   </div>
 </div>
+
 <script>
 /* CONFIG */
-const CACHE_POP_KEY  = 'map3d_pop_v3'; // v3: solo países independientes
+const CACHE_POP_KEY  = 'map3d_pop_v4';
 const CACHE_ECON_KEY = 'map3d_econ_v2';
 const CACHE_TTL_MS   = 7*24*60*60*1000;
-const WEIGHTS = {pop:.5,gdp:.3,gdp_pc:.2};
+let WEIGHTS = {pop:.5,gdp:.3,gdp_pc:.2};
 
 /* UTIL */
 const $ = id => document.getElementById(id);
@@ -534,6 +665,27 @@ window.addEventListener('resize',setVH);
 window.addEventListener('orientationchange',setVH);
 
 const isoFlags = new Map();
+
+/* ─── FLAG IMAGE (usa flagcdn.com — imágenes reales, sin depender de emojis) ─── */
+function flagImg(iso3, size='sm'){
+  const cca2 = isoFlags.get(iso3);
+  if(!cca2 || cca2.length !== 2){
+    return '<span style="font-size:16px;line-height:1">🌐</span>';
+  }
+  // tamaños disponibles en flagcdn: 20, 40, 80, 160, 320, 640
+  const sizeMap = {sm:20, md:20, lg:40, xl:40};
+  const w = sizeMap[size] || 20;
+  const cc = cca2.toLowerCase();
+  return `<img
+    src="https://flagcdn.com/w${w}/${cc}.png"
+    srcset="https://flagcdn.com/w${w*2}/${cc}.png 2x"
+    class="flag-img flag-img-${size}"
+    alt="${cc.toUpperCase()}"
+    loading="lazy"
+    onerror="this.style.display='none'"
+  >`;
+}
+
 function cacheGet(k){ try{const r=localStorage.getItem(k);if(!r)return null;const{ts,data}=JSON.parse(r);if(Date.now()-ts>CACHE_TTL_MS){localStorage.removeItem(k);return null;}return data;}catch{return null;} }
 function cacheSet(k,d){ try{localStorage.setItem(k,JSON.stringify({ts:Date.now(),data:d}));}catch{} }
 
@@ -542,7 +694,8 @@ let globe, features=[], allCountries=[];
 let countryByIso=new Map(), featureByIso=new Map(), centroidCache=new Map();
 let selectedISO3=null, nearestISO3=null, mode='equiv';
 const equivalentsISO3=new Set();
-const similarISO3Set=new Set(); // top5 parecidos para colorear globo
+const similarISO3Set=new Set();
+const excludedISO3=new Set();
 let mouseX=0, mouseY=0;
 document.addEventListener('mousemove',e=>{mouseX=e.clientX;mouseY=e.clientY;});
 
@@ -559,13 +712,23 @@ async function loadGeo(){
 async function loadPopulation(){
   const cached=cacheGet(CACHE_POP_KEY);
   if(cached){allCountries=cached;for(const c of allCountries){if(c.cca2)isoFlags.set(c.iso3,c.cca2);}return'cache';}
-  const data=await fetch('https://restcountries.com/v3.1/all?fields=name,cca3,cca2,population,independent').then(r=>r.json());
+  const data=await fetch('https://restcountries.com/v3.1/all?fields=name,cca3,cca2,population,independent,capital,latlng,region,subregion').then(r=>r.json());
   allCountries=data
     .filter(d=>d?.name?.common&&Number.isFinite(d.population)&&d.independent===true)
     .map(d=>{
       const iso3=String(d.cca3).toUpperCase();
       if(d.cca2)isoFlags.set(iso3,d.cca2);
-      return{iso3,name:d.name.common,pop:d.population,cca2:d.cca2||''};
+      return{
+        iso3,
+        name:d.name.common,
+        pop:d.population,
+        cca2:d.cca2||'',
+        capital:d.capital?.[0]||null,
+        lat:d.latlng?.[0]??null,
+        lng:d.latlng?.[1]??null,
+        region:d.region||null,
+        subregion:d.subregion||null,
+      };
     });
   cacheSet(CACHE_POP_KEY,allCountries);
   return'api';
@@ -598,15 +761,26 @@ async function loadEconomics(){
   cacheSet(CACHE_ECON_KEY,allCountries.map(({iso3,gdp,gdp_pc})=>({iso3,gdp,gdp_pc})));
 }
 
-/* ALGORITHMS */
 
-// #7 — Fórmula simétrica: |a-b|/max(a,b) → nunca supera 100%, funciona igual en ambas direcciones
+/* WEIGHTS */
+function updateWeightsUI(){
+  const total=WEIGHTS.pop+WEIGHTS.gdp+WEIGHTS.gdp_pc;
+  const pct=w=>Math.round((w/total)*100);
+  $('wPopPct').textContent =pct(WEIGHTS.pop)+'%';
+  $('wGdpPct').textContent =pct(WEIGHTS.gdp)+'%';
+  $('wGdpPcPct').textContent=pct(WEIGHTS.gdp_pc)+'%';
+  const t=pct(WEIGHTS.pop)+pct(WEIGHTS.gdp)+pct(WEIGHTS.gdp_pc);
+  $('weightsNote').textContent=`Total efectivo: ${t}%`;
+  if(selectedISO3&&mode==='nearest'){
+    const f=featureByIso.get(selectedISO3);
+    if(f) onPickCountry(f);
+  }
+}
+
+/* ALGORITHMS */
 const relErr=(a,b)=>(isFinite(a)&&isFinite(b)&&Math.max(a,b)>0)?Math.abs(a-b)/Math.max(a,b):Infinity;
 
-// #1 — Algoritmo determinista puro: sin random, greedy descendente
-// Ordena de mayor a menor y toma el país más grande que quepa en cada paso
 function findEquivalentCountries(pool, target, access){
-  // Pool ya viene filtrado (solo países con dato válido de la métrica, sin el seleccionado)
   const sorted=[...pool].sort((a,b)=>access(b)-access(a));
   const chosen=[];
   let remaining=target;
@@ -618,7 +792,6 @@ function findEquivalentCountries(pool, target, access){
   return {set:chosen, sum:target-remaining};
 }
 
-// #2 — Fallback: país individualmente más cercano al target (diferencia absoluta mínima)
 function findClosestSingle(pool, target, access){
   let best=null, bestDiff=Infinity;
   for(const c of pool){
@@ -632,7 +805,6 @@ function findClosestSingle(pool, target, access){
 function findNearestByMetric(base,metric){
   const a=getVal(base,metric);if(a==null)return null;
   let best=null,bestErr=Infinity;
-  // #10 — Solo países con dato válido para esa métrica
   for(const c of allCountries){
     if(c.iso3===base.iso3)continue;
     const b=getVal(c,metric);if(b==null||!isFinite(b))continue;
@@ -640,32 +812,13 @@ function findNearestByMetric(base,metric){
   }
   return best?{country:best,err:bestErr}:null;
 }
-function combinedScore(base, cand){
-
-  const parts = []
-
-  if(base.pop && cand.pop){
-    const e = relErr(base.pop, cand.pop)
-    parts.push(e*e)
-  }
-
-  if(base.gdp && cand.gdp){
-    const e = relErr(base.gdp, cand.gdp)
-    parts.push(e*e)
-  }
-
-  if(base.gdp_pc && cand.gdp_pc){
-    const e = relErr(base.gdp_pc, cand.gdp_pc)
-    parts.push(e*e)
-  }
-
-  if(!parts.length) return Infinity
-
-  const dist = Math.sqrt(
-    parts.reduce((a,b)=>a+b,0)
-  )
-
-  return dist
+function combinedScore(base,cand){
+  const parts=[];let wUsed=0;
+  if(base.pop!=null&&cand.pop!=null){parts.push(WEIGHTS.pop*relErr(base.pop,cand.pop));wUsed+=WEIGHTS.pop;}
+  if(base.gdp!=null&&cand.gdp!=null){parts.push(WEIGHTS.gdp*relErr(base.gdp,cand.gdp));wUsed+=WEIGHTS.gdp;}
+  if(base.gdp_pc!=null&&cand.gdp_pc!=null){parts.push(WEIGHTS.gdp_pc*relErr(base.gdp_pc,cand.gdp_pc));wUsed+=WEIGHTS.gdp_pc;}
+  if(!parts.length)return Infinity;
+  return parts.reduce((a,b)=>a+b,0)/(wUsed||1);
 }
 function findNearestCombined(base){
   let best=null,bestScore=Infinity;
@@ -687,79 +840,63 @@ function topKCombined(base,k){
 
 function barColor(p){ return p>=75?'var(--green)':p>=50?'var(--yellow)':'var(--orange)'; }
 
+function buildInfoGrid(base, twin){
+  const el=$('gmInfoSection');
+  if(!base.capital&&!base.region&&!twin.capital&&!twin.region){ el.style.display='none'; return; }
+  el.style.display='block';
+  const rows=[];
+  if(base.capital||twin.capital) rows.push({label:'Capital', bv:base.capital||'—', tv:twin.capital||'—'});
+  if(base.region||twin.region){
+    const same=base.region&&twin.region&&base.region===twin.region;
+    rows.push({label:'Región', bv:base.region||'—', tv:twin.region||'—', same});
+  }
+  if(base.subregion||twin.subregion){
+    const same=base.subregion&&twin.subregion&&base.subregion===twin.subregion;
+    rows.push({label:'Subregión', bv:base.subregion||'—', tv:twin.subregion||'—', same});
+  }
+  $('gmInfoGrid').innerHTML = rows.map(r=>{
+    const cls = r.same===true ? 'same' : r.same===false ? 'diff' : '';
+    return `
+      <div class="gm-info-col left"><span class="gm-info-chip ${cls}" title="${r.bv}">${r.bv}</span></div>
+      <div class="gm-info-divider">
+        <span style="font-size:9px;color:var(--text3)">${r.label}</span>
+        <span style="font-size:10px;color:var(--text3)">${r.same===true?'✓ igual':'↔'}</span>
+      </div>
+      <div class="gm-info-col right"><span class="gm-info-chip ${cls}" title="${r.tv}">${r.tv}</span></div>`;
+  }).join('');
+}
+
 function buildFrase(base, twin, metrics){
-  // Describe el patrón real de similitudes y diferencias en todas las métricas
   const available = metrics.filter(m=>m.sim!=null);
   if(!available.length) return `<em>${twin.name}</em> es el país más parecido a <em>${base.name}</em> según los datos disponibles.`;
-
-  const high  = available.filter(m=>m.sim>=75);
-  const mid   = available.filter(m=>m.sim>=50&&m.sim<75);
-  const low   = available.filter(m=>m.sim<50);
-
+  const high=available.filter(m=>m.sim>=75), mid=available.filter(m=>m.sim>=50&&m.sim<75), low=available.filter(m=>m.sim<50);
   let parts=[];
-  if(high.length)  parts.push(`coinciden fuertemente en ${high.map(m=>m.label.toLowerCase()).join(' y ')}`);
-  if(mid.length)   parts.push(`tienen cierta cercanía en ${mid.map(m=>m.label.toLowerCase()).join(' y ')}`);
-  if(low.length)   parts.push(`difieren notablemente en ${low.map(m=>m.label.toLowerCase()).join(' y ')}`);
-
+  if(high.length) parts.push(`coinciden fuertemente en ${high.map(m=>m.label.toLowerCase()).join(' y ')}`);
+  if(mid.length)  parts.push(`tienen cierta cercanía en ${mid.map(m=>m.label.toLowerCase()).join(' y ')}`);
+  if(low.length)  parts.push(`difieren notablemente en ${low.map(m=>m.label.toLowerCase()).join(' y ')}`);
   const intro = high.length===available.length
     ? `<em>${base.name}</em> y <em>${twin.name}</em> son estructuralmente muy parecidos`
     : low.length===available.length
       ? `<em>${base.name}</em> y <em>${twin.name}</em> no se parecen mucho en ninguna métrica individual, pero son los más cercanos en el balance combinado`
       : `<em>${base.name}</em> y <em>${twin.name}</em>`;
-
   return `${intro}: ${parts.join(', ')}.`;
 }
 
 function openGemeloModal(base, twin, nComb, nPop){
   const sim = Math.max(0,(1-nComb.score)*100);
-
-  // Las 3 métricas con valores reales de ambos países + similitud
   const metrics=[
-    {
-      label:'Población',
-      baseVal: base.pop,
-      twinVal: twin.pop,
-      sim: (base.pop&&twin.pop) ? Math.max(0,(1-relErr(base.pop,twin.pop))*100) : null,
-      fmt: v => fmt.format(v)+' hab.'
-    },
-    {
-      label:'PIB total',
-      baseVal: base.gdp,
-      twinVal: twin.gdp,
-      sim: (base.gdp&&twin.gdp) ? Math.max(0,(1-relErr(base.gdp,twin.gdp))*100) : null,
-      fmt: v => fmtUSD.format(v)
-    },
-    {
-      label:'PIB per cápita',
-      baseVal: base.gdp_pc,
-      twinVal: twin.gdp_pc,
-      sim: (base.gdp_pc&&twin.gdp_pc) ? Math.max(0,(1-relErr(base.gdp_pc,twin.gdp_pc))*100) : null,
-      fmt: v => fmtUSD.format(v)
-    },
+    { label:'Población',    baseVal:base.pop,    twinVal:twin.pop,    sim:(base.pop&&twin.pop)?Math.max(0,(1-relErr(base.pop,twin.pop))*100):null,    fmt:v=>fmt.format(v)+' hab.' },
+    { label:'PIB total',    baseVal:base.gdp,    twinVal:twin.gdp,    sim:(base.gdp&&twin.gdp)?Math.max(0,(1-relErr(base.gdp,twin.gdp))*100):null,    fmt:v=>fmtUSD.format(v) },
+    { label:'PIB per cáp.', baseVal:base.gdp_pc, twinVal:twin.gdp_pc, sim:(base.gdp_pc&&twin.gdp_pc)?Math.max(0,(1-relErr(base.gdp_pc,twin.gdp_pc))*100):null, fmt:v=>fmtUSD.format(v) },
   ];
-
-  // Header: banderas + nombres
-  $('gmFlags').innerHTML =
-    `<span style="font-size:32px">${flagEmoji(base.iso3)}</span>`+
-    `<span style="font-size:14px;color:var(--text3);margin:0 6px">vs</span>`+
-    `<span style="font-size:32px">${flagEmoji(twin.iso3)}</span>`;
+  $('gmFlags').innerHTML = flagImg(base.iso3,'xl')+`<span style="font-size:18px;font-weight:700;color:var(--text3);margin:0 4px">vs</span>`+flagImg(twin.iso3,'xl');
   $('gmTitle').textContent    = `${base.name} & ${twin.name}`;
   $('gmSubtitle').textContent = `${sim.toFixed(1)}% de similitud estructural`;
-
-  // Frase que describe el cuadro completo
+  buildInfoGrid(base, twin);
   $('gmFrase').innerHTML = buildFrase(base, twin, metrics);
-
-  // Tabla de métricas: valor base | barra | valor twin
   $('gmMetrics').innerHTML = metrics.map(m=>{
-    if(m.sim==null) return `
-      <div class="gm-metric-row">
-        <span class="gm-label">${m.label}</span>
-        <span style="font-size:11px;color:var(--text3);flex:1;text-align:center">Sin datos</span>
-      </div>`;
-
-    const bv = m.baseVal ? m.fmt(m.baseVal) : '—';
-    const tv = m.twinVal ? m.fmt(m.twinVal) : '—';
-    const bc = barColor(m.sim);
+    if(m.sim==null) return `<div class="gm-metric-row"><span class="gm-label">${m.label}</span><span style="font-size:11px;color:var(--text3);flex:1;text-align:center">Sin datos</span></div>`;
+    const bv=m.baseVal?m.fmt(m.baseVal):'—', tv=m.twinVal?m.fmt(m.twinVal):'—', bc=barColor(m.sim);
     return `
       <div style="margin-bottom:10px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
@@ -771,34 +908,24 @@ function openGemeloModal(base, twin, nComb, nPop){
           <span style="font-size:10px;color:var(--text3)">↔</span>
           <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);flex:1;text-align:right">${tv}</span>
         </div>
-        <div class="gm-bar-wrap">
-          <div class="gm-bar" style="width:${m.sim.toFixed(1)}%;background:${bc}"></div>
-        </div>
+        <div class="gm-bar-wrap"><div class="gm-bar" style="width:${m.sim.toFixed(1)}%;background:${bc}"></div></div>
       </div>`;
   }).join('');
-
-  // Alerta estructural
-  const alertMsg = detectStructuralAlert(base, twin);
-  const alertEl  = $('gmAlert');
-  if(alertMsg){ alertEl.textContent='⚠️ '+alertMsg; alertEl.style.display='block'; }
-  else alertEl.style.display='none';
-
-  // Botón
+  const alertMsg=detectStructuralAlert(base,twin), alertEl=$('gmAlert');
+  if(alertMsg){alertEl.textContent='⚠️ '+alertMsg;alertEl.style.display='block';}else alertEl.style.display='none';
   const btn=$('gmSelectBtn');
   btn.textContent=`Explorar ${twin.name} →`;
   btn.onclick=()=>{ closeGemeloModal(); const f=featureByIso.get(twin.iso3); if(f) onPickCountry(f); };
-
   $('gModal').classList.add('show');
   $('tooltip').classList.remove('show'); $('tooltip').style.visibility='hidden';
 }
+
 function closeGemeloModal(){ $('gModal').classList.remove('show'); $('tooltip').style.visibility=''; }
 
-// #9 — Detecta inconsistencia estructural (PIB similar pero PIB pc muy diferente)
 function detectStructuralAlert(base, twin){
   if(!base.gdp||!twin.gdp||!base.gdp_pc||!twin.gdp_pc) return null;
   const gdpSim  = 1-relErr(base.gdp,twin.gdp);
   const gdppcSim= 1-relErr(base.gdp_pc,twin.gdp_pc);
-  // Si PIB es parecido (>70%) pero PIB pc difiere mucho (>40%), hay asimetría estructural
   if(gdpSim>0.7 && gdppcSim<0.6){
     const ratio=base.gdp_pc>twin.gdp_pc
       ? `${base.name} tiene ${(base.gdp_pc/twin.gdp_pc).toFixed(1)}× más PIB per cápita`
@@ -822,23 +949,17 @@ function centroidOf(f){
   const c={lat:sl/n,lng:sg/n};centroidCache.set(key,c);return c;
 }
 
-/* FLAG EMOJI */
-function flagEmoji(iso3){
-  const cca2=isoFlags.get(iso3);
-  if(!cca2||cca2.length!==2)return'🌐';
-  return cca2.split('').map(c=>String.fromCodePoint(0x1F1E6-65+c.charCodeAt(0))).join('');
-}
-
 /* TOOLTIP */
 const tooltip=$('tooltip');let tooltipTO;
 function showTooltip(f,x,y){
-  if(sheetOpen) return; // no mostrar tooltip cuando el sheet está abierto
+  if(sheetOpen) return;
   clearTimeout(tooltipTO);
   const iso=(f?.properties?.iso3||'').toUpperCase();
   const rec=countryByIso.get(iso);
   if(!rec){hideTooltip();return;}
   const metric=$('metricSelect').value,val=getVal(rec,metric);
-  $('ttFlag').textContent=flagEmoji(iso);
+  // Bandera en tooltip como imagen real
+  $('ttFlag').innerHTML = flagImg(iso,'md');
   $('ttName').textContent=rec.name;
   $('ttVal').textContent=val!=null?`${metricLabel(metric)}: ${formatVal(metric,val)}`:iso;
   tooltip.style.left=(x+14)+'px';tooltip.style.top=(y-10)+'px';
@@ -860,7 +981,10 @@ function buildSearchDrop(inputEl,dropEl){
       const metric=$('metricSelect').value;
       dropEl.innerHTML=matches.map(c=>{
         const val=getVal(c,metric);
-        return`<div class="sdrop-item" data-iso="${c.iso3}">${flagEmoji(c.iso3)} <strong>${c.name}</strong><span class="sdrop-val">${val!=null?formatVal(metric,val):'—'}</span></div>`;
+        return`<div class="sdrop-item" data-iso="${c.iso3}">
+          <span class="sdrop-name">${flagImg(c.iso3,'sm')} <strong>${c.name}</strong></span>
+          <span class="sdrop-val">${val!=null?formatVal(metric,val):'—'}</span>
+        </div>`;
       }).join('');
     }
     dropEl.style.display='block';
@@ -881,6 +1005,7 @@ function buildSearchDrop(inputEl,dropEl){
 function renderModeLabels(){
   if(mode==='equiv'){$('labelSum').textContent='Suma equivalente';$('labelDiff').textContent='Diferencia';$('legendModeLabel').textContent='Equivalentes';}
   else{$('labelSum').textContent='Más parecido';$('labelDiff').textContent='Score (↓ mejor)';$('legendModeLabel').textContent='Más parecido';}
+  syncWeightsPanel();
 }
 function updateMetricOptions(){
   const opt=[...$('metricSelect').options].find(o=>o.value==='gdp_pc');if(!opt)return;
@@ -899,11 +1024,23 @@ function onPickCountry(f){
   if(!rec){setStatus('Sin datos','err');return;}
   selectedISO3=iso;
   const metric=$('metricSelect').value,val=getVal(rec,metric);
-  $('infoFlag').textContent=flagEmoji(iso);
+
+  // Bandera como imagen real (md = 26px)
+  $('infoFlag').innerHTML = flagImg(iso,'md');
+
   $('selName').textContent=rec.name;
   $('selISO').textContent=iso;$('selISO').style.display='inline';
   $('labelTarget').textContent=metricLabel(metric);
   $('selVal').textContent=val!=null?formatVal(metric,val):'—';
+
+  const extraEl=$('countryExtra');
+  if(rec.capital||rec.region){
+    $('extraCapital').innerHTML = rec.capital ? `🏛️ <strong>${rec.capital}</strong>` : '';
+    $('extraRegion').innerHTML   = rec.region   ? `🌎 <strong>${rec.region}</strong>` : '';
+    $('extraSubregion').innerHTML= rec.subregion? `<strong>${rec.subregion}</strong>` : '';
+    extraEl.style.display='flex';
+  } else { extraEl.style.display='none'; }
+
   globe.controls().autoRotate=false;
   if(mode==='equiv') runEquiv(rec,metric,val,iso);
   else runNearest(rec,iso);
@@ -921,11 +1058,8 @@ function runEquiv(rec,metric,target,iso){
     refreshPolygons(); return;
   }
 
-  // #10 — Pool solo con países independientes que tienen dato válido de la métrica activa
   const access=c=>getVal(c,metric);
-  const pool=allCountries.filter(c=>c.iso3!==iso && access(c)!=null && isFinite(access(c)));
-
-  // #1 — Algoritmo determinista
+  const pool=allCountries.filter(c=>c.iso3!==iso && !excludedISO3.has(c.iso3) && access(c)!=null && isFinite(access(c)));
   const res=findEquivalentCountries(pool, target, access);
 
   let sum=0;
@@ -936,20 +1070,18 @@ function runEquiv(rec,metric,target,iso){
   const coverage=target>0?Math.min(sum/target,1):0;
   const coveragePct=(coverage*100).toFixed(1);
 
-  // #2 — Fallback si no se encontró ningún país (target muy pequeño)
   if(!res.set.length){
     const closest=findClosestSingle(pool, target, access);
     $('sumVal').textContent='—';
     $('diffVal').textContent='—';
     if(closest){
-      const cPct=(1-relErr(target,access(closest.country))*100).toFixed(1);
       $('countriesList').innerHTML=`
         <div class="empty-state">
           <div class="empty-icon">🔍</div>
           <div>No hay combinación posible para este valor.</div>
           <div style="margin-top:10px;font-size:12px;color:var(--text2)">
             El país individualmente más cercano es:<br>
-            <strong style="color:var(--text);font-size:14px">${flagEmoji(closest.country.iso3)} ${closest.country.name}</strong><br>
+            <strong style="color:var(--text);font-size:14px">${flagImg(closest.country.iso3,'sm')} ${closest.country.name}</strong><br>
             <span style="color:var(--accent);font-family:'JetBrains Mono',monospace">${formatVal(metric,access(closest.country))}</span>
           </div>
         </div>`;
@@ -962,17 +1094,16 @@ function runEquiv(rec,metric,target,iso){
   $('sumVal').textContent=formatVal(metric,sum);
   $('diffVal').textContent=`${coveragePct}% cubierto`;
 
-  // #5 — Lista con barra de progreso acumulativa por país
   let cumSum=0;
   const rows=res.set.map(p=>{
     const v=access(p);
-    const prevPct=target>0?Math.min(cumSum/target,1)*100:0;
     cumSum+=v;
     const curPct=target>0?Math.min(cumSum/target,1)*100:0;
     return `
-      <div class="list-item" style="flex-direction:column;align-items:stretch;gap:4px">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <strong>${flagEmoji(p.iso3)} ${p.name}</strong>
+      <div class="list-item equiv-item" style="flex-direction:column;align-items:stretch;gap:4px">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:6px">
+          <input type="checkbox" class="equiv-exclude" title="Excluir" data-iso="${p.iso3}">
+          <strong style="flex:1;display:flex;align-items:center;gap:7px">${flagImg(p.iso3,'sm')} ${p.name}</strong>
           <span class="tag">${formatVal(metric,v)}</span>
         </div>
         <div style="height:3px;background:var(--border);border-radius:2px;overflow:hidden">
@@ -984,6 +1115,15 @@ function runEquiv(rec,metric,target,iso){
   $('countriesList').innerHTML=
     `<div class="list-section">Países equivalentes (${res.set.length}) — ${coveragePct}% cubierto</div>`
     + rows.join('');
+
+  $('countriesList').querySelectorAll('.equiv-exclude').forEach(cb=>{
+    cb.addEventListener('change',()=>{
+      const iso=cb.dataset.iso;
+      if(cb.checked){ excludedISO3.add(iso); } else { excludedISO3.delete(iso); }
+      const f=featureByIso.get(selectedISO3);
+      if(f) onPickCountry(f);
+    });
+  });
 }
 
 function runNearest(rec,iso){
@@ -995,24 +1135,28 @@ function runNearest(rec,iso){
   const nComb=findNearestCombined(rec);
 
   nearestISO3=nComb?.country?.iso3||null;
-
-  // #6 — Score como similitud: 1 - distancia
   const simPct=nComb&&isFinite(nComb.score)?Math.max(0,(1-nComb.score)*100):null;
 
-  // #8 — "País gemelo"
-  $('sumVal').textContent=nComb?`${flagEmoji(nComb.country.iso3)} ${nComb.country.name}`:'—';
+  // Mostrar bandera + nombre del gemelo en el stat card
+  if(nComb){
+    $('sumVal').innerHTML=`<span style="display:inline-flex;align-items:center;gap:6px">${flagImg(nComb.country.iso3,'sm')} ${nComb.country.name}</span>`;
+  } else {
+    $('sumVal').textContent='—';
+  }
   $('diffVal').textContent=simPct!=null?`${simPct.toFixed(1)}% similar`:'—';
 
   const block=[];
-
-  // #8 — Sección renombrada a "País gemelo"
   block.push(`<div class="list-section">🧬 País gemelo</div>`);
   if(nComb){
     const sim=simPct.toFixed(1);
     block.push(`
       <div class="list-item" style="flex-direction:column;gap:6px">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:6px">
-          <strong><a href="#" class="country-link" data-iso="${nComb.country.iso3}">${flagEmoji(nComb.country.iso3)} ${nComb.country.name}</a></strong>
+          <strong style="display:flex;align-items:center;gap:7px">
+            <a href="#" class="country-link" data-iso="${nComb.country.iso3}" style="display:flex;align-items:center;gap:7px">
+              ${flagImg(nComb.country.iso3,'sm')} ${nComb.country.name}
+            </a>
+          </strong>
           <div style="display:flex;gap:5px;align-items:center;flex-shrink:0">
             <span class="badge ${badgeClass(nComb.score)}">${sim}%</span>
             <button class="gemelo-why-btn btn" data-iso="${nComb.country.iso3}" style="padding:3px 9px;font-size:11px;border-color:var(--border2);color:var(--text2)">¿Por qué?</button>
@@ -1024,17 +1168,15 @@ function runNearest(rec,iso){
       </div>`);
   }
 
-  // Por métrica individual
   block.push(`<div class="list-section">Por métrica</div>`);
   for(const[label,res]of[['Población',nPop],['PIB',nGdp],['PIB per cápita',nGpc]]){
     if(res){
-      // #6 — similitud en lugar de distancia
       const sim=Math.max(0,(1-res.err)*100).toFixed(1);
       block.push(`
         <div class="list-item">
           <strong>${label}</strong>
           <span class="right-pack">
-            <span class="tag">${flagEmoji(res.country.iso3)} ${res.country.name}</span>
+            <span class="tag" style="display:inline-flex;align-items:center;gap:6px">${flagImg(res.country.iso3,'sm')} ${res.country.name}</span>
             <span class="badge ${badgeClass(res.err)}">${sim}%</span>
           </span>
         </div>`);
@@ -1043,7 +1185,6 @@ function runNearest(rec,iso){
     }
   }
 
-  // #6 top5 — también como % similitud, pintados en el globo
   let top5=topKCombined(rec,6);
   if(nComb) top5=top5.filter(x=>x.country.iso3!==nComb.country.iso3);
   top5=top5.filter(x=>x.score<.5).slice(0,5);
@@ -1051,11 +1192,15 @@ function runNearest(rec,iso){
   if(top5.length){
     block.push(`<div class="list-section">Otros similares</div>`);
     for(const r of top5){
-      similarISO3Set.add(r.country.iso3); // #6 pintar en globo
+      similarISO3Set.add(r.country.iso3);
       const sim=Math.max(0,(1-r.score)*100).toFixed(1);
       block.push(`
         <div class="list-item">
-          <strong><a href="#" class="country-link" data-iso="${r.country.iso3}">${flagEmoji(r.country.iso3)} ${r.country.name}</a></strong>
+          <strong style="display:flex;align-items:center;gap:7px">
+            <a href="#" class="country-link" data-iso="${r.country.iso3}" style="display:flex;align-items:center;gap:7px">
+              ${flagImg(r.country.iso3,'sm')} ${r.country.name}
+            </a>
+          </strong>
           <span class="badge ${badgeClass(r.score)}">${sim}%</span>
         </div>`);
     }
@@ -1069,7 +1214,6 @@ function runNearest(rec,iso){
       if(f) onPickCountry(f);
     });
   });
-  // Wire "¿Por qué?" button
   $('countriesList').querySelectorAll('.gemelo-why-btn').forEach(btn=>{
     btn.addEventListener('click',ev=>{
       ev.preventDefault(); ev.stopPropagation();
@@ -1125,7 +1269,6 @@ async function main(){
     window.addEventListener('orientationchange',()=>setTimeout(debounceResize,300));
     debounceResize();
 
-    // Setup search dropdowns
     buildSearchDrop($('searchInput'),$('searchDrop'));
     buildSearchDrop($('searchInputMobile'),$('mobileSearchDrop'));
 
@@ -1145,7 +1288,7 @@ $('btnDownload').addEventListener('click',()=>{
   Object.assign(document.createElement('a'),{href:url,download:'paises_datos.json'}).click();
 });
 
-/* BOTTOM SHEET — se abre automáticamente al tocar país */
+/* BOTTOM SHEET */
 const sheet=$('bottomSheet');
 const closeBtn=$('sheetCloseBtn');
 const mobileSearchDrop=$('mobileSearchDrop');
@@ -1155,7 +1298,7 @@ function openSheet(){
   sheet.classList.add('open');
   sheetOpen=true;
   closeBtn.style.display='inline';
-  hideTooltip(); // limpiar cualquier tooltip visible
+  hideTooltip();
 }
 function closeSheet(){
   sheet.classList.remove('open');
@@ -1164,11 +1307,9 @@ function closeSheet(){
 }
 function toggleSheet(){ sheetOpen?closeSheet():openSheet(); }
 
-// Tap handle bar → toggle
 $('sheetHandle').addEventListener('click',toggleSheet);
 closeBtn.addEventListener('click',e=>{e.stopPropagation();closeSheet();});
 
-// Swipe down on handle → close
 let touchStartY=0;
 $('sheetHandle').addEventListener('touchstart',e=>{touchStartY=e.touches[0].clientY;},{passive:true});
 $('sheetHandle').addEventListener('touchend',e=>{
@@ -1178,21 +1319,24 @@ $('sheetHandle').addEventListener('touchend',e=>{
 
 function syncSheet(){
   if(!selectedISO3)return;
-  const flag=$('infoFlag').textContent, name=$('selName').textContent;
-  // Update peek label
-  $('sheetPeek').innerHTML=`<span class="peek-flag">${flag}</span>${name}`;
+  const flagHtml = $('infoFlag').innerHTML;
+  const name = $('selName').textContent;
+
+  // Peek: bandera + nombre
+  $('sheetPeek').innerHTML = flagHtml + `<span>${name}</span>`;
+
   // Country bar
-  $('sheetFlag').textContent=flag;
-  $('sheetName').textContent=name;
-  $('sheetVal').textContent=$('selVal').textContent;
+  $('sheetFlag').innerHTML = flagHtml;
+  $('sheetName').textContent = name;
+  $('sheetVal').textContent = $('selVal').textContent;
   $('sheetCountryBar').style.display='flex';
-  // Stats
+
   $('sheetLabelSum').textContent=$('labelSum').textContent;
-  $('sheetSumVal').textContent=$('sumVal').textContent;
+  $('sheetSumVal').innerHTML=$('sumVal').innerHTML;
   $('sheetLabelDiff').textContent=$('labelDiff').textContent;
   $('sheetDiffVal').textContent=$('diffVal').textContent;
   $('sheetStats').style.display='grid';
-  // List
+
   $('sheetList').innerHTML=$('countriesList').innerHTML;
   $('sheetList').querySelectorAll('.country-link').forEach(el=>{
     el.addEventListener('click',ev=>{
@@ -1201,7 +1345,6 @@ function syncSheet(){
       if(f){ onPickCountry(f); }
     });
   });
-  // Wire "¿Por qué?" en el sheet móvil
   $('sheetList').querySelectorAll('.gemelo-why-btn').forEach(btn=>{
     btn.addEventListener('click',ev=>{
       ev.preventDefault(); ev.stopPropagation();
@@ -1217,13 +1360,29 @@ function syncSheet(){
   });
 }
 new MutationObserver(()=>{if(window.innerWidth<=980)syncSheet();}).observe($('countriesList'),{childList:true,subtree:true});
-// Auto-open when country picked on mobile
 document.addEventListener('map3d:picked',()=>{ if(window.innerWidth<=980) openSheet(); });
 
 /* GEMELO MODAL CLOSE */
 $('gModalClose').addEventListener('click', closeGemeloModal);
 $('gModalBackdrop').addEventListener('click', closeGemeloModal);
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeGemeloModal(); });
+
+/* WEIGHTS SLIDERS */
+$('weightsToggle').addEventListener('click',()=>{
+  $('weightsToggle').classList.toggle('open');
+  $('weightsBody').classList.toggle('open');
+});
+function onSliderChange(){
+  WEIGHTS.pop    = +$('wPop').value;
+  WEIGHTS.gdp    = +$('wGdp').value;
+  WEIGHTS.gdp_pc = +$('wGdpPc').value;
+  updateWeightsUI();
+}
+['wPop','wGdp','wGdpPc'].forEach(id=>$(id).addEventListener('input', onSliderChange));
+
+function syncWeightsPanel(){
+  $('weightsPanel').style.display = mode==='nearest' ? 'block' : 'none';
+}
 </script>
 </body>
 </html>
